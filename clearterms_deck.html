@@ -1,0 +1,2166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearTerms — Trade Credit Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #384CE3;
+    --blue-light: #5B6BF0;
+    --blue-dark: #2A3ABF;
+    --teal: #1BA8A0;
+    --forest: #2D8A4E;
+    --sky: #4AABDD;
+    --bg: #FFFFFF;
+    --bg-alt: #F7F8FC;
+    --text: #1A1A2E;
+    --text-secondary: #5A5A7A;
+    --text-muted: #8E8EA0;
+    --border: #E2E4EF;
+    --red: #E34848;
+    --orange: #E3882E;
+    --green: #2D8A4E;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    font-family: var(--font-body);
+    background: var(--text);
+    color: var(--text);
+    overflow: hidden;
+    height: 100%;
+  }
+
+  /* Slide container */
+  .deck {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 1cm;
+    background: var(--bg);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+    overflow: hidden;
+  }
+
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Typography */
+  .slide-label {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--blue);
+    margin-bottom: 12px;
+    flex-shrink: 0;
+  }
+
+  h1 {
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+  }
+
+  h2 {
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  h3 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  .lead {
+    font-size: 20px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    width: 100%;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+  }
+
+  /* Problem slide two-column layout */
+  .problem-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    flex: 1;
+    min-height: 0;
+    margin-bottom: 1cm;
+  }
+
+  .problem-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .problem-block .icp-block-label {
+    margin-bottom: 2px;
+  }
+
+  .problem-card {
+    flex: 1;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .problem-card h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .problem-card p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  .problem-card .stat-number {
+    margin-bottom: 6px;
+  }
+
+  .problem-card .stat-label {
+    font-size: 14px;
+  }
+
+  /* Stat cards */
+  .stats-row {
+    display: flex;
+    gap: 32px;
+    margin: 16px 0;
+  }
+
+  .stat-card {
+    flex: 1;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 32px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    border-radius: 16px 16px 0 0;
+    background: var(--blue);
+  }
+
+  .stat-card.red::before { background: var(--red); }
+  .stat-card.orange::before { background: var(--orange); }
+  .stat-card.teal::before { background: var(--teal); }
+
+  .stat-number {
+    font-family: var(--font-mono);
+    font-size: 64px;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 16px;
+  }
+
+  .stat-card.red .stat-number { color: var(--red); }
+  .stat-card.orange .stat-number { color: var(--orange); }
+  .stat-card.teal .stat-number { color: var(--teal); }
+
+  .stat-label {
+    font-size: 20px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+  }
+
+  /* Insight box */
+  .insight-box {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: linear-gradient(135deg, #384CE310, #384CE305);
+    border: 1px solid #384CE330;
+    border-radius: 12px;
+    padding: 16px 24px;
+    margin-top: 16px;
+  }
+
+  .insight-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+  }
+
+  .insight-text {
+    font-size: 18px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .insight-text strong {
+    color: var(--blue);
+  }
+
+  /* Footnotes */
+  .footnotes {
+    margin-top: auto;
+    flex-shrink: 0;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    line-height: 1.6;
+    padding-top: 12px;
+  }
+
+  /* ICP two-column layout */
+  .icp-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 8px 0;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .icp-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .icp-block-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .icp-card {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    position: relative;
+  }
+
+  .icp-card.primary {
+    background: linear-gradient(135deg, #384CE308, #384CE315);
+    border: 2px solid var(--blue);
+  }
+
+  .icp-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+
+  .icp-badge.now {
+    background: #384CE320;
+    color: var(--blue);
+  }
+
+  .icp-badge.later {
+    background: #5A5A7A15;
+    color: var(--text-muted);
+  }
+
+  .icp-badge.already {
+    background: #2D8A4E20;
+    color: var(--forest);
+  }
+
+  .icp-card h4 {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .icp-card p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  .icp-card.primary h4 { font-size: 20px; }
+  .icp-card.primary p { font-size: 15px; }
+
+  /* Market slide — waterfall + bubble */
+  .market-layout {
+    display: grid;
+    grid-template-columns: 5fr 1fr 5fr;
+    gap: 0;
+    flex: 1;
+    min-height: 0;
+    align-items: center;
+  }
+
+  .waterfall {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+    justify-content: center;
+  }
+
+  .wf-block {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    position: relative;
+  }
+
+  .wf-block::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 5px;
+    border-radius: 12px 0 0 12px;
+  }
+
+  .wf-block:nth-child(1)::before { background: #C5CBF5; }
+  .wf-block:nth-child(2)::before { background: #8B96EE; }
+  .wf-block:nth-child(3)::before { background: var(--blue); }
+
+  .wf-label {
+    font-size: 15px;
+    color: var(--text);
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  .wf-value {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--blue);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .wf-total {
+    border: 2px solid var(--blue);
+    background: linear-gradient(135deg, #384CE308, #384CE315);
+    border-radius: 12px;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .wf-total .wf-label {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text);
+  }
+
+  .wf-total .wf-value {
+    font-size: 24px;
+    color: var(--blue);
+  }
+
+  .market-connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 28px;
+  }
+
+  .market-connector svg {
+    width: 60px;
+    height: 24px;
+    stroke: var(--border);
+    stroke-width: 2;
+    fill: none;
+  }
+
+  .bubble-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 0;
+    position: relative;
+  }
+
+  .bubble-tam {
+    width: min(280px, 80%);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #384CE312, #384CE320);
+    border: 2px solid #384CE340;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .bubble-tam-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .bubble-tam-value {
+    font-family: var(--font-mono);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 16px;
+  }
+
+  .bubble-sam {
+    width: 55%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: linear-gradient(145deg, var(--blue), var(--blue-dark));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(56, 76, 227, 0.25);
+  }
+
+  .bubble-sam-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 2px;
+  }
+
+  .bubble-sam-value {
+    font-family: var(--font-mono);
+    font-size: 26px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .bubble-callout {
+    margin-top: 14px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    text-align: center;
+    max-width: 100%;
+  }
+
+  .bubble-callout strong {
+    color: var(--blue);
+    font-weight: 700;
+  }
+
+  /* Solution section */
+  .solution-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    margin: 24px 0;
+  }
+
+  .solution-card {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+
+  .solution-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .solution-icon.economics { background: #2D8A4E15; }
+  .solution-icon.tam { background: #384CE315; }
+  .solution-icon.opex { background: #1BA8A015; }
+
+  .solution-card h4 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .solution-card p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+  }
+
+  /* Solution slide layout */
+  .solution-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .solution-what-card {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .solution-what-card .icp-block-label {
+    margin-bottom: 16px;
+    color: var(--blue);
+  }
+
+  .solution-what-card .solution-what-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+  }
+
+  .solution-what-card p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .solution-benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .solution-benefit-card {
+    flex: 1;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    display: flex;
+    gap: 18px;
+    align-items: center;
+  }
+
+  .solution-benefit-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .solution-benefit-icon.economics { background: #2D8A4E15; }
+  .solution-benefit-icon.growth { background: #384CE315; }
+  .solution-benefit-icon.ops { background: #1BA8A015; }
+
+  .solution-benefit-content h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .solution-benefit-content p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* Moat grid */
+  .moat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 8px 0;
+  }
+
+  .moat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+    margin-bottom: 1cm;
+  }
+
+  .moat-row .moat-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .moat-card {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .moat-card h4 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--blue);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .moat-card p {
+    font-size: 18px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .moat-card.highlight {
+    border: 2px solid var(--blue);
+    background: linear-gradient(135deg, #384CE308, #384CE312);
+  }
+
+  /* GTM layout */
+  /* GTM slide — 3-column layout */
+  .gtm-three-col {
+    display: grid;
+    grid-template-columns: 1.3fr 0.6fr 1.3fr;
+    gap: 48px;
+    flex: 1;
+  }
+
+  .gtm-col {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .gtm-col-title {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    margin-top: 1cm;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .gtm-col-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+  }
+
+  .gtm-bullet {
+    font-size: 19px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
+
+  .gtm-bullet strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* Business model blocks */
+  .biz-model-stack {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+  }
+
+  .biz-model-block {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    padding: 24px 20px;
+    font-size: 19px;
+    font-weight: 500;
+    line-height: 1.8;
+    text-align: center;
+    width: 100%;
+  }
+
+  .biz-model-block.dark {
+    background: var(--blue);
+    color: #fff;
+  }
+
+  .biz-model-block.light {
+    background: #384CE312;
+    color: var(--blue);
+    border: 1px solid #384CE330;
+  }
+
+  .biz-model-plus {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--blue);
+    padding: 6px 0;
+  }
+
+  /* GTM motion numbered items */
+  .gtm-numbered {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .gtm-number {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+  }
+
+  .gtm-numbered-content {
+    flex: 1;
+  }
+
+  .gtm-numbered-content h4 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .gtm-numbered-content ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .gtm-numbered-content li {
+    font-size: 17px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    padding: 3px 0 3px 16px;
+    position: relative;
+  }
+
+  .gtm-numbered-content li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 11px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--blue-light);
+  }
+
+  /* Team slide */
+  .team-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    flex: 1;
+    padding: 0 120px;
+  }
+
+  .team-member {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .team-avatar {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: var(--bg-alt);
+    border: 3px solid var(--border);
+    margin-top: 1cm;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .team-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .team-member h4 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+    text-align: center;
+  }
+
+  .team-bullets {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .team-bullets li {
+    font-size: 18px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    padding: 5px 0 5px 18px;
+    position: relative;
+  }
+
+  .team-bullets li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 13px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--blue);
+  }
+
+  .team-logos {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 100%;
+    margin-top: 16px;
+    gap: 16px;
+  }
+
+  .team-logos img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+    opacity: 0.8;
+  }
+
+  /* Slide body — flex-grows to fill space between header and footnotes */
+  .slide-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Cover slide special */
+  .slide.cover {
+    padding: 0;
+    flex-direction: row;
+    background: var(--bg);
+  }
+
+  .cover-left {
+    width: 33.333%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--blue);
+    flex-shrink: 0;
+  }
+
+  .cover-left img {
+    width: 65%;
+    max-width: 280px;
+    height: auto;
+  }
+
+  .cover-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1cm 1.5cm;
+  }
+
+  .cover h1 {
+    font-size: 72px;
+    margin-bottom: 20px;
+    color: var(--blue);
+  }
+
+  .cover .subtitle {
+    font-size: 26px;
+    color: var(--text-muted);
+  }
+
+  .cover-presenter {
+    margin-top: 48px;
+    font-size: 18px;
+    color: var(--text-muted);
+  }
+
+  /* Navigation dots */
+  .nav-dots {
+    position: fixed;
+    bottom: 28px;
+    right: 40px;
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+  }
+
+  .nav-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+
+  .nav-dot.active {
+    background: var(--blue);
+    transform: scale(1.2);
+  }
+
+  /* Slide counter */
+  .slide-counter {
+    position: fixed;
+    bottom: 30px;
+    right: 140px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-muted);
+    z-index: 100;
+  }
+
+  /* Two-column layout helper */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* How it works box */
+  .how-it-works {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+  }
+
+  .how-it-works h4 {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    margin-bottom: 10px;
+  }
+
+  .how-it-works p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .differentiator {
+    background: linear-gradient(135deg, #E3482815, #E3482808);
+    border: 1px solid #E3482830;
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin-bottom: 12px;
+  }
+
+  .differentiator h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--red);
+    margin-bottom: 6px;
+  }
+
+  .differentiator p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+
+  /* ── Interactive Problem Story Slide ── */
+  .slide.interactive {
+    --is-red-soft: #FEF2F2;
+    --is-red-border: #FECACA;
+    --is-amber: #D97706;
+    --is-amber-soft: #FFFBEB;
+    --is-amber-border: #FDE68A;
+    --is-green: #16A34A;
+    --is-green-soft: #F0FDF4;
+    --is-green-border: #BBF7D0;
+    padding: 0;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .slide.interactive .is-top-bar {
+    padding: 1cm 1cm 0;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+
+  .slide.interactive .slide-label {
+    font-size: 12px;
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+
+  .slide.interactive .is-title {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    color: var(--text);
+    transition: color 0.4s ease;
+  }
+
+  .slide.interactive .is-title.alarmed { color: var(--red); }
+
+  .slide.interactive .is-stage {
+    display: grid;
+    grid-template-columns: 1fr 0fr;
+    gap: 0;
+    padding: 0.4cm 1cm;
+    min-height: 0;
+    transition: grid-template-columns 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+
+  .slide.interactive .is-stage.split {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .slide.interactive .is-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .slide.interactive .is-panel-left {
+    padding-right: 0;
+    transition: padding-right 0.55s ease;
+  }
+
+  .slide.interactive .is-stage.split .is-panel-left {
+    padding-right: 24px;
+    border-right: 1px solid var(--border);
+  }
+
+  .slide.interactive .is-panel-right {
+    padding-left: 24px;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 0.45s ease 0.3s, transform 0.45s ease 0.3s;
+    pointer-events: none;
+  }
+
+  .slide.interactive .is-stage.split .is-panel-right {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .slide.interactive .is-panel-label {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .slide.interactive .is-customer-card {
+    background: var(--bg-alt);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+    transition: background 0.5s ease, border-color 0.5s ease;
+  }
+
+  .slide.interactive .is-customer-card.unpaid {
+    background: var(--is-red-soft);
+    border-color: var(--is-red-border);
+  }
+
+  .slide.interactive .is-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .slide.interactive .is-card-company {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    transition: color 0.4s;
+  }
+
+  .slide.interactive .is-customer-card.unpaid .is-card-company { color: var(--red); }
+
+  .slide.interactive .is-card-tag {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  .slide.interactive .is-tag-ok {
+    background: var(--is-green-soft);
+    color: var(--is-green);
+    border: 1px solid var(--is-green-border);
+  }
+
+  .slide.interactive .is-tag-unpaid {
+    background: var(--is-red-soft);
+    color: var(--red);
+    border: 1px solid var(--is-red-border);
+    display: none;
+  }
+
+  .slide.interactive .is-customer-card.unpaid .is-tag-ok { display: none; }
+  .slide.interactive .is-customer-card.unpaid .is-tag-unpaid { display: block; }
+
+  .slide.interactive .is-card-rows { display: flex; flex-direction: column; flex: 1; justify-content: space-evenly; }
+
+  .slide.interactive .is-card-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 18px;
+  }
+
+  .slide.interactive .is-card-row-label { color: var(--text-muted); }
+
+  .slide.interactive .is-card-row-value {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .slide.interactive .is-card-row-value.ok { color: var(--is-green); }
+  .slide.interactive .is-card-row-value.warn { color: var(--is-amber); }
+
+  .slide.interactive .is-shipment-row {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.4s ease, transform 0.4s ease, background 0.5s ease, border-color 0.5s ease;
+    pointer-events: none;
+  }
+
+  .slide.interactive .is-shipment-row.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .slide.interactive .is-customer-card.unpaid .is-shipment-row {
+    background: var(--is-red-soft);
+    border-color: var(--is-red-border);
+    animation: isFlashIn 0.5s ease both;
+  }
+
+  @keyframes isFlashIn {
+    0%   { transform: scale(0.97); }
+    60%  { transform: scale(1.015); }
+    100% { transform: scale(1); }
+  }
+
+  .slide.interactive .is-shipment-label {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: color 0.4s;
+  }
+
+  .slide.interactive .is-customer-card.unpaid .is-shipment-label { color: var(--red); }
+
+  .slide.interactive .is-shipment-amount {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    transition: color 0.4s;
+  }
+
+  .slide.interactive .is-customer-card.unpaid .is-shipment-amount { color: var(--red); }
+
+  .slide.interactive .is-asleep-note {
+    font-size: 16px;
+    color: var(--text-muted);
+    font-style: italic;
+    transition: opacity 0.4s;
+  }
+
+  .slide.interactive .is-customer-card.unpaid .is-asleep-note { opacity: 0; }
+
+  .slide.interactive .is-signal-feed {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .slide.interactive .is-signal-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+    opacity: 0;
+    transform: translateY(7px);
+    transition: opacity 0.32s ease, transform 0.32s ease;
+    flex-shrink: 0;
+  }
+
+  .slide.interactive .is-signal-item.visible { opacity: 1; transform: none; }
+
+  .slide.interactive .is-signal-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  .slide.interactive .is-dot-amber { background: var(--is-amber); }
+  .slide.interactive .is-dot-red { background: var(--red); }
+
+  .slide.interactive .is-signal-body { flex: 1; }
+
+  .slide.interactive .is-signal-date {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+    font-weight: 500;
+  }
+
+  .slide.interactive .is-signal-type {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .slide.interactive .is-signal-type.lien { color: var(--is-amber); }
+  .slide.interactive .is-signal-type.suspend { color: var(--red); }
+  .slide.interactive .is-signal-type.lawsuit { color: var(--red); }
+
+  .slide.interactive .is-signal-detail {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  .slide.interactive .is-signal-badge {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 3px;
+  }
+
+  .slide.interactive .is-badge-lien {
+    background: var(--is-amber-soft);
+    color: var(--is-amber);
+    border: 1px solid var(--is-amber-border);
+  }
+
+  .slide.interactive .is-badge-suspend {
+    background: var(--is-red-soft);
+    color: var(--red);
+    border: 1px solid var(--is-red-border);
+  }
+
+  .slide.interactive .is-badge-lawsuit {
+    background: var(--is-red-soft);
+    color: var(--red);
+    border: 1px solid var(--is-red-border);
+  }
+
+  .slide.interactive .is-signal-count {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--is-red-soft);
+    color: var(--red);
+    border: 1px solid var(--is-red-border);
+    margin-left: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .slide.interactive .is-signal-count.visible { opacity: 1; }
+
+  .slide.interactive .is-footer {
+    padding: 0.3cm 1cm;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .slide.interactive .is-step-dots { display: flex; gap: 6px; align-items: center; }
+
+  .slide.interactive .is-step-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.25s;
+  }
+
+  .slide.interactive .is-step-dot.active { background: var(--blue); width: 20px; border-radius: 3px; }
+  .slide.interactive .is-step-dot.past { background: var(--text-muted); }
+
+  .slide.interactive .is-nav-hint {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  .slide.interactive .is-nav-hint.handoff {
+    color: var(--blue);
+    font-weight: 600;
+    animation: isBlink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes isBlink {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.4; }
+  }
+
+  /* Print styles */
+  @media print {
+    .slide {
+      position: relative;
+      page-break-after: always;
+      opacity: 1;
+      pointer-events: auto;
+      height: 100vh;
+      min-height: 100vh;
+    }
+    .nav-dots, .slide-counter { display: none; }
+    body { overflow: visible; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- SLIDE 0: COVER -->
+  <div class="slide cover active" data-slide="0">
+    <div class="cover-left">
+      <img src="Inputs/baselayerhq_logo.png" alt="Baselayer Logo">
+    </div>
+    <div class="cover-right">
+      <h1>Baselayer ClearTerms</h1>
+      <div class="subtitle">Trade Credit Intelligence for the Baselayer Platform</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: INTERACTIVE PROBLEM STORY -->
+  <div class="slide interactive" data-slide="1">
+
+    <div class="is-top-bar">
+      <div class="slide-label">Problem</div>
+      <div class="is-title" id="isTitle">A supplier. Three years. No missed payments.</div>
+    </div>
+
+    <div class="is-stage" id="isStage">
+
+      <!-- LEFT -->
+      <div class="is-panel is-panel-left">
+        <div class="is-panel-label">What the supplier saw</div>
+
+        <div class="is-customer-card" id="isCustomerCard">
+          <div class="is-card-header">
+            <div class="is-card-company">Northeast Grocery Chain</div>
+            <div class="is-card-tag is-tag-ok">&#x25CF; Active customer</div>
+            <div class="is-card-tag is-tag-unpaid">&#x25CF; Invoice unpaid</div>
+          </div>
+
+          <div class="is-card-rows">
+            <div class="is-card-row">
+              <span class="is-card-row-label">Credit terms</span>
+              <span class="is-card-row-value">Net-45</span>
+            </div>
+            <div class="is-card-row">
+              <span class="is-card-row-label">Last payment</span>
+              <span class="is-card-row-value ok">On time &middot; Jul 2025</span>
+            </div>
+            <div class="is-card-row">
+              <span class="is-card-row-label">Customer since</span>
+              <span class="is-card-row-value">2022</span>
+            </div>
+            <div class="is-card-row">
+              <span class="is-card-row-label">Credit check</span>
+              <span class="is-card-row-value warn">2022 &middot; Not refreshed</span>
+            </div>
+            <div class="is-card-row">
+              <span class="is-card-row-label">Open invoices</span>
+              <span class="is-card-row-value ok">$0 past due</span>
+            </div>
+          </div>
+
+          <div class="is-shipment-row" id="isShipmentRow">
+            <div class="is-shipment-label" id="isShipmentLabel">Aug 2025 shipment</div>
+            <div class="is-shipment-amount">$80,000</div>
+          </div>
+
+          <div class="is-asleep-note">No alerts. No changes. Business as usual.</div>
+        </div>
+      </div>
+
+      <!-- RIGHT (hidden until step 3) -->
+      <div class="is-panel is-panel-right">
+        <div class="is-panel-label">
+          What was in public records
+          <span class="is-signal-count" id="isSignalCount"></span>
+        </div>
+
+        <div class="is-signal-feed">
+
+          <div class="is-signal-item" data-idx="0">
+            <div class="is-signal-dot is-dot-amber"></div>
+            <div class="is-signal-body">
+              <div class="is-signal-date">Apr 28, 2025</div>
+              <div class="is-signal-type lien">UCC Lien Filed</div>
+              <div class="is-signal-detail">Corporation Service Company &mdash; short-term lender agent</div>
+            </div>
+            <div class="is-signal-badge is-badge-lien">Lien #1</div>
+          </div>
+
+          <div class="is-signal-item" data-idx="1">
+            <div class="is-signal-dot is-dot-amber"></div>
+            <div class="is-signal-body">
+              <div class="is-signal-date">May 16, 2025</div>
+              <div class="is-signal-type lien">UCC Lien Filed</div>
+              <div class="is-signal-detail">ASSN Company &mdash; short-term lender</div>
+            </div>
+            <div class="is-signal-badge is-badge-lien">Lien #2</div>
+          </div>
+
+          <div class="is-signal-item" data-idx="2">
+            <div class="is-signal-dot is-dot-amber"></div>
+            <div class="is-signal-body">
+              <div class="is-signal-date">Jun 2, 2025</div>
+              <div class="is-signal-type lien">UCC Lien Filed</div>
+              <div class="is-signal-detail">Corporation Service Company &mdash; short-term lender agent</div>
+            </div>
+            <div class="is-signal-badge is-badge-lien">Lien #3</div>
+          </div>
+
+          <div class="is-signal-item" data-idx="3">
+            <div class="is-signal-dot is-dot-red"></div>
+            <div class="is-signal-body">
+              <div class="is-signal-date">Jul 15, 2025</div>
+              <div class="is-signal-type suspend">Registration Suspended</div>
+              <div class="is-signal-detail">NH Secretary of State &mdash; state compliance lapse</div>
+            </div>
+            <div class="is-signal-badge is-badge-suspend">Suspended</div>
+          </div>
+
+          <div class="is-signal-item" data-idx="4">
+            <div class="is-signal-dot is-dot-amber"></div>
+            <div class="is-signal-body">
+              <div class="is-signal-date">Aug 1, 2025</div>
+              <div class="is-signal-type lien">UCC Lien Filed</div>
+              <div class="is-signal-detail">Corporation Service Company &mdash; short-term lender agent</div>
+            </div>
+            <div class="is-signal-badge is-badge-lien">Lien #4</div>
+          </div>
+
+          <div class="is-signal-item" data-idx="5">
+            <div class="is-signal-dot is-dot-red"></div>
+            <div class="is-signal-body">
+              <div class="is-signal-date">Aug 14, 2025</div>
+              <div class="is-signal-type lawsuit">Lawsuit Filed</div>
+              <div class="is-signal-detail">PA Court of Common Pleas &mdash; active litigation</div>
+            </div>
+            <div class="is-signal-badge is-badge-lawsuit">Lawsuit</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="is-footer">
+      <div class="is-step-dots" id="isStepDots"></div>
+      <div class="is-nav-hint" id="isNavHint">SPACE OR &rarr; TO ADVANCE</div>
+    </div>
+
+  </div>
+
+  <!-- SLIDE 2: PROBLEM -->
+  <div class="slide" data-slide="2">
+    <div class="slide-label">Problem</div>
+    <h2>B2B sellers extend trillions in credit with no visibility into buyer health</h2>
+    <p class="lead">Current KYB tools verify identity at onboarding — but say nothing about whether a buyer can actually pay.</p>
+    <div class="slide-body">
+      <div class="stats-row" style="flex: 0.7; margin: 0; margin-top: 1.5cm;">
+        <div class="stat-card">
+          <div class="stat-number">~60%</div>
+          <div class="stat-label">of US B2B sales are made on credit terms (net-30/60/90)&sup1;</div>
+        </div>
+        <div class="stat-card teal">
+          <div class="stat-number">$4.5T</div>
+          <div class="stat-label">trade credit outstanding in the US — 21% of GDP&sup2;</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-number">2–8%</div>
+          <div class="stat-label">of credit sales become bad debt&sup3;</div>
+        </div>
+      </div>
+
+      <div class="footnotes">
+        &sup1; Atradius Payment Practices Barometer 2024 &nbsp;&bull;&nbsp;
+        &sup2; Federal Reserve IFDP &nbsp;&bull;&nbsp;
+        &sup3; Atradius 2024; HighRadius
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: IDEAL CUSTOMER PROFILE -->
+  <div class="slide" data-slide="3">
+    <div class="slide-label">Ideal Customer Profile</div>
+    <h2>We start with mid-market B2B sellers</h2>
+    <p class="lead">Large enough AR that bad debt is material — but no dedicated credit team.</p>
+    <div class="slide-body">
+      <div class="icp-two-col">
+        <div class="icp-block">
+          <div class="icp-block-label">Financial Services</div>
+          <div class="icp-card">
+            <div class="icp-badge already">Already served</div>
+            <h4>A. B2B Lenders</h4>
+            <p>Baselayer's core market — add credit signals to existing KYB product</p>
+          </div>
+          <div class="icp-card">
+            <div class="icp-badge later">Later</div>
+            <h4>B. Trade Credit Insurers</h4>
+            <p>Concentrated market (Atradius, Euler Hermes, Coface); high switching costs</p>
+          </div>
+        </div>
+        <div class="icp-block">
+          <div class="icp-block-label">B2B Sellers</div>
+          <div class="icp-card">
+            <div class="icp-badge later">Later</div>
+            <h4>C. Enterprise</h4>
+            <p>Large AR books but have in-house credit teams; long sales cycles</p>
+          </div>
+          <div class="icp-card primary">
+            <div class="icp-badge now">Primary Target</div>
+            <h4>D. Mid-Market &nbsp;($10M–$500M revenue)</h4>
+            <p>Large AR books, high-ticket orders, no dedicated credit team. CFO/Controller makes credit decisions on gut feel. Highest pain, most underserved.</p>
+          </div>
+          <div class="icp-card">
+            <div class="icp-badge later">Later</div>
+            <h4>E. SMBs</h4>
+            <p>Fragmented, low ticket size, hard to reach at scale</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="footnotes">
+        Segment prioritization based on Baselayer's existing customer base, market structure, and pain-point severity.
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: MARKET -->
+  <div class="slide" data-slide="4">
+    <div class="slide-label">Market</div>
+    <h2>The total addressable market for credit risk is $15+ billion, with one third of it in the mid-market segment</h2>
+    <p class="lead">Insolvencies are on the rise and sellers are looking for new ways to understand risk.</p>
+    <div class="slide-body">
+      <div class="market-layout">
+
+        <div class="waterfall">
+          <div class="wf-block">
+            <div class="wf-label">Credit risk assessment software&sup1;</div>
+            <div class="wf-value">$2–3B</div>
+          </div>
+          <div class="wf-block">
+            <div class="wf-label">AR automation&sup2;</div>
+            <div class="wf-value">$1–2B</div>
+          </div>
+          <div class="wf-block">
+            <div class="wf-label">Credit bureaus, commercial credit&sup3;</div>
+            <div class="wf-value">$10–12B</div>
+          </div>
+          <div class="wf-total">
+            <div class="wf-label">Total addressable market</div>
+            <div class="wf-value">~$15B</div>
+          </div>
+        </div>
+
+        <div class="market-connector">
+          <svg viewBox="0 0 60 24"><path d="M8 12 H42 M36 6 L48 12 L36 18" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
+        <div class="bubble-area">
+          <div class="bubble-tam">
+            <div class="bubble-tam-label">TAM</div>
+            <div class="bubble-tam-value">~$15B</div>
+            <div class="bubble-sam">
+              <div class="bubble-sam-label">SAM</div>
+              <div class="bubble-sam-value">~$5B</div>
+            </div>
+          </div>
+          <div class="bubble-callout">Mid-market represents <strong>~30%</strong> of US business revenue <sup>4</sup></div>
+        </div>
+
+      </div>
+
+      <div class="footnotes">
+        &sup1; Precedence Research &nbsp;&bull;&nbsp;
+        &sup2; VM Research &nbsp;&bull;&nbsp;
+        &sup3; Mordor Intelligence &nbsp;&bull;&nbsp;
+        <sup>4</sup> NASDAQ Mid-Market Report
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: WHY BASELAYER -->
+  <div class="slide" data-slide="5">
+    <div class="slide-label">Why Baselayer</div>
+    <h2>Baselayer's data and existing network puts it in a unique position to redefine how credit decisions are made</h2>
+    <p class="lead">ClearTerms seamlessly integrates into sellers workflows to enhance decision-making without disruption.</p>
+    <div class="slide-body">
+      <div class="moat-row">
+        <div class="moat-card">
+          <h4>&#x1F5C4;&#xFE0F; The Data Moat</h4>
+          <p><strong>Real-time access</strong> to Secretary of State registrations, IRS records, UCC lien filings, litigation/bankruptcy records, and web presence analysis — covering <strong>120M+ US businesses</strong>.</p>
+        </div>
+        <div class="moat-card">
+          <h4>&#x1F310; The Network</h4>
+          <p>Fraud consortium with <strong>2,200+ financial institutions</strong> (~20% of US banks/CUs).</p>
+          <p></p>
+          <p>Identity network detects patterns across institutions.</p>
+          <p></p>
+          <p><strong>Credibility empowers expansion into new segments.</strong></p>
+        </div>
+        <div class="moat-card">
+          <h4>&#x26A1; The Performance</h4>
+          <p><strong>Sub-5-second</strong> verification, <strong>98% match rates</strong>, AI-powered entity matching and resolution. </p>
+          <p></p>
+          <p>Production-grade and battle-tested performance <strong>improves decision-making without disruption workflows.</strong></p>
+        </div>
+        <div class="moat-card">
+          <h4>&#x1F4C5; The Timing</h4>
+          <p>Global insolvencies surged <strong>+10% in 2024</strong>; US expected <strong>+12% in 2025</strong>.</p>
+          <p></p>
+          <p>Demand for credit risk tools is peaking.&sup1;</p>
+        </div>
+      </div>
+
+      <div class="footnotes">
+        &sup1; Allianz Trade Global Insolvency Report 2024
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: SOLUTION -->
+  <div class="slide" data-slide="6">
+    <div class="slide-label">Solution</div>
+    <h2>Optimized B2B credit decisions for CFOs and credit managers, powered by Baselayer AI risk platform</h2>
+    <p class="lead">Real-time credit risk scoring that plugs into any B2B checkout or credit approval workflow.</p>
+    <div class="slide-body">
+      <div class="solution-layout">
+        <div class="solution-what-card">
+          <div class="icp-block-label">What we build</div>
+          <div class="solution-what-text">
+            <p>A credit intelligence platform that gives B2B sellers <strong>real-time visibility into buyer financial health</strong> before they extend terms.</p>
+            <p>ClearTerms <strong>continuously monitors public records</strong> (UCC filings, litigation, registration status) and <strong>surfaces risk signals</strong> the moment they appear.</p>
+            <p>Delivered as an <strong>API and dashboard that plugs into existing invoicing and ERP workflows</strong>. No new software required.</p>
+          </div>
+        </div>
+        <div class="solution-benefits">
+          <div class="solution-benefit-card">
+            <div class="solution-benefit-icon economics">&#x1F4B0;</div>
+            <div class="solution-benefit-content">
+              <h4>Reduce bad debt losses</h4>
+              <p>Cut 2-8% bad debt rate through data-driven credit decisions. Flag deteriorating buyers before they default.</p>
+            </div>
+          </div>
+          <div class="solution-benefit-card">
+            <div class="solution-benefit-icon growth">&#x1F4C8;</div>
+            <div class="solution-benefit-content">
+              <h4>Grow revenue safely</h4>
+              <p>Extend credit to smaller buyers that were previously too risky to manually underwrite. More customers, same risk tolerance.</p>
+            </div>
+          </div>
+          <div class="solution-benefit-card">
+            <div class="solution-benefit-icon ops">&#x26A1;</div>
+            <div class="solution-benefit-content">
+              <h4>Eliminate manual review</h4>
+              <p>Automated, instant credit checks replace spreadsheet-based processes. Baselayer's AI already achieves 72% less manual review for its FI clients.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: GO-TO-MARKET -->
+  <div class="slide" data-slide="7">
+    <div class="slide-label">Go-to-Market</div>
+    <h2>We suggest a double go-to-market approach that combines direct sales and partnerships with AR/accounting platforms</h2>
+    <div class="slide-body">
+      <div class="gtm-three-col">
+
+        <!-- Column 1: Target Customer -->
+        <div class="gtm-col">
+          <div class="gtm-col-title">Target Customer</div>
+          <div class="gtm-col-content">
+            <p class="gtm-bullet"><strong>Size:</strong> Mid-market B2B sellers ($10–500M revenue)</p>
+            <p class="gtm-bullet"><strong>Industry:</strong> Wholesale distribution, Manufacturing, Construction materials (large AR exposure, big average ticket, low margins, long sales cycles)</p>
+            <p class="gtm-bullet"><strong>Buyer persona:</strong> CFO (smaller firms) or Credit Manager (larger firms)</p>
+          </div>
+        </div>
+
+        <!-- Column 2: Business Model -->
+        <div class="gtm-col">
+          <div class="gtm-col-title">Business Model</div>
+          <div class="biz-model-stack">
+            <div class="biz-model-block dark">Tiered subscription<br>(with API calls limit)</div>
+            <div class="biz-model-plus">+</div>
+            <div class="biz-model-block light">Price-per-volume<br>for additional API calls</div>
+          </div>
+        </div>
+
+        <!-- Column 3: GTM Motion -->
+        <div class="gtm-col">
+          <div class="gtm-col-title">GTM Motion</div>
+          <div class="gtm-col-content">
+            <div class="gtm-numbered">
+              <div class="gtm-number">1</div>
+              <div class="gtm-numbered-content">
+                <h4>Direct Sales</h4>
+                <ul>
+                  <li>Large accounts (e.g., Baselayer Growth / Enterprise tier)</li>
+                  <li>Land POC to validate and iterate product</li>
+                </ul>
+              </div>
+            </div>
+            <div class="gtm-numbered">
+              <div class="gtm-number">2</div>
+              <div class="gtm-numbered-content">
+                <h4>Partnerships</h4>
+                <ul>
+                  <li>Integrate into AR/accounting platforms (e.g., QuickBooks, Bill.com, HighRadius)</li>
+                  <li>Enable seamless credit decisioning workflow</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: TEAM -->
+  <div class="slide" data-slide="8">
+    <div class="slide-label">Team</div>
+    <h2>We are the team that can help you achieve this vision</h2>
+    <div class="slide-body">
+      <div class="team-grid">
+
+        <!-- Gabriela Aldana -->
+        <div class="team-member">
+          <div class="team-avatar" style="background: var(--bg-alt); display: flex; align-items: center; justify-content: center; font-size: 40px; color: var(--text-muted);">?</div>
+          <h4>Gabriela Aldana</h4>
+          <ul class="team-bullets">
+            <li>Placeholder bullet point</li>
+            <li>Placeholder bullet point</li>
+            <li>Placeholder bullet point</li>
+          </ul>
+          <div class="team-logos">
+            <div style="height: 40px; width: 80px; background: var(--bg-alt); border-radius: 8px;"></div>
+            <div style="height: 40px; width: 80px; background: var(--bg-alt); border-radius: 8px;"></div>
+            <div style="height: 40px; width: 80px; background: var(--bg-alt); border-radius: 8px;"></div>
+          </div>
+        </div>
+
+        <!-- Sergio Sanchez -->
+        <div class="team-member">
+          <div class="team-avatar"><img src="Inputs/Profile pic_professional.JPEG" alt="Sergio Sanchez"></div>
+          <h4>Sergio Sanchez</h4>
+          <ul class="team-bullets">
+            <li>Developed venture in credit management during Fall 2025</li>
+            <li>2+ years in B2B payments startups (Growth &amp; Strategy)</li>
+            <li>2+ years in McKinsey (Financial Services, Venture Building)</li>
+          </ul>
+          <div class="team-logos">
+            <img src="Inputs/MITSloanLogo_MASTER_Print.png" alt="MIT Sloan">
+            <img src="Inputs/McKinsey_&_Company-Logo.wine.png" alt="McKinsey" style="height: 60px;">
+            <img src="Inputs/outpayce-logo.png" alt="Outpayce">
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Navigation dots -->
+<div class="nav-dots" id="navDots"></div>
+<div class="slide-counter" id="slideCounter"></div>
+
+<script>
+  // ── Deck Navigation ──
+  const deck = document.getElementById('deck');
+  const slides = deck.querySelectorAll('.slide');
+  const navDots = document.getElementById('navDots');
+  const counter = document.getElementById('slideCounter');
+  let current = 0;
+  const total = slides.length;
+  const INTERACTIVE_SLIDE = 1;
+
+  // Create nav dots
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goTo(i));
+    navDots.appendChild(dot);
+  });
+
+  function goTo(n) {
+    if (n < 0 || n >= total) return;
+    const wasAt = current;
+    slides[current].classList.remove('active');
+    navDots.children[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    navDots.children[current].classList.add('active');
+    counter.textContent = `${current + 1} / ${total}`;
+    // Handle interactive slide entry
+    if (n === INTERACTIVE_SLIDE) {
+      if (wasAt > n) {
+        isShowDone();
+      } else {
+        isReset();
+      }
+    }
+  }
+
+  function next() {
+    if (current === INTERACTIVE_SLIDE) {
+      if (isDone) {
+        goTo(current + 1);
+      } else {
+        isNext();
+      }
+    } else {
+      goTo(current + 1);
+    }
+  }
+
+  function prev() {
+    if (current === INTERACTIVE_SLIDE) {
+      if (isStep > 0) {
+        isPrev();
+      } else {
+        goTo(current - 1);
+      }
+    } else {
+      goTo(current - 1);
+    }
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault();
+      next();
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      prev();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      goTo(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      goTo(total - 1);
+    }
+  });
+
+  // Click navigation (left third = back, right two-thirds = forward)
+  deck.addEventListener('click', (e) => {
+    if (e.target.closest('.nav-dots') || e.target.closest('a') || e.target.closest('button')) return;
+    const x = e.clientX / window.innerWidth;
+    if (x < 0.33) prev();
+    else next();
+  });
+
+  // Init counter
+  counter.textContent = `1 / ${total}`;
+
+  // ── Interactive Problem Story Slide ──
+  const IS_SIGNALS = 6;
+  const IS_MANUAL = 4;
+
+  const isStageEl     = document.getElementById('isStage');
+  const isTitleEl     = document.getElementById('isTitle');
+  const isCardEl      = document.getElementById('isCustomerCard');
+  const isShipRowEl   = document.getElementById('isShipmentRow');
+  const isShipLabelEl = document.getElementById('isShipmentLabel');
+  const isCountEl     = document.getElementById('isSignalCount');
+  const isDotsEl      = document.getElementById('isStepDots');
+  const isHintEl      = document.getElementById('isNavHint');
+  const isSignalEls   = Array.from(document.querySelectorAll('.is-signal-item'));
+
+  const IS_TITLES = [
+    'A supplier. Three years. No missed payments.',
+    '$80,000 shipment goes out in August.',
+    'Six weeks later, the invoice is unpaid.',
+    'When they dig in, here\'s what they find.',
+  ];
+  const IS_TITLE_FINAL = 'Every signal was in public records. Nobody was watching.';
+
+  // Build step dots
+  for (let i = 0; i < IS_MANUAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'is-step-dot';
+    isDotsEl.appendChild(d);
+  }
+
+  let isStep = 0;
+  let isAutoTimer = null;
+  let isAutoRunning = false;
+  let isDone = false;
+
+  function isUpdateDots(n) {
+    const dots = isDotsEl.querySelectorAll('.is-step-dot');
+    dots.forEach((d, i) => {
+      d.classList.toggle('past', i < n);
+      d.classList.toggle('active', i === n);
+    });
+  }
+
+  function isShowSignals(upTo) {
+    isSignalEls.forEach((s, i) => s.classList.toggle('visible', i < upTo));
+    if (upTo > 0) {
+      isCountEl.textContent = upTo + ' signal' + (upTo !== 1 ? 's' : '');
+      isCountEl.classList.add('visible');
+    } else {
+      isCountEl.classList.remove('visible');
+    }
+  }
+
+  function isStartAutoSequence() {
+    if (isAutoRunning) return;
+    isAutoRunning = true;
+    let shown = 0;
+
+    function tick() {
+      shown++;
+      isShowSignals(shown);
+      if (shown < IS_SIGNALS) {
+        isAutoTimer = setTimeout(tick, 900);
+      } else {
+        isAutoTimer = setTimeout(() => {
+          isTitleEl.textContent = IS_TITLE_FINAL;
+          isTitleEl.classList.remove('alarmed');
+          isDone = true;
+          isHintEl.textContent = '\u2192 ADVANCE TO NEXT SLIDE';
+          isHintEl.classList.add('handoff');
+        }, 700);
+      }
+    }
+
+    isAutoTimer = setTimeout(tick, 700);
+  }
+
+  function isStopAutoSequence() {
+    if (isAutoTimer) { clearTimeout(isAutoTimer); isAutoTimer = null; }
+    isAutoRunning = false;
+  }
+
+  function isApplyStep(n) {
+    isTitleEl.textContent = IS_TITLES[n] || IS_TITLES[IS_TITLES.length - 1];
+    isTitleEl.classList.toggle('alarmed', n >= 2);
+    isShipRowEl.classList.toggle('visible', n >= 1);
+    isCardEl.classList.toggle('unpaid', n >= 2);
+    isShipLabelEl.textContent = n >= 2 ? 'Aug 2025 shipment \u00b7 UNPAID' : 'Aug 2025 shipment';
+    isStageEl.classList.toggle('split', n >= 3);
+
+    if (n < 3) {
+      isStopAutoSequence();
+      isShowSignals(0);
+      isDone = false;
+      isHintEl.textContent = 'SPACE OR \u2192 TO ADVANCE';
+      isHintEl.classList.remove('handoff');
+    }
+
+    isUpdateDots(n);
+    isStep = n;
+  }
+
+  function isNext() {
+    if (isDone) return;
+    if (isAutoRunning) return;
+    if (isStep < IS_MANUAL - 1) {
+      isApplyStep(isStep + 1);
+      if (isStep === 3) isStartAutoSequence();
+    }
+  }
+
+  function isPrev() {
+    isStopAutoSequence();
+    isDone = false;
+    if (isStep > 0) isApplyStep(isStep - 1);
+  }
+
+  function isReset() {
+    isStopAutoSequence();
+    isDone = false;
+    isApplyStep(0);
+  }
+
+  function isShowDone() {
+    isStopAutoSequence();
+    isStep = 3;
+    isTitleEl.textContent = IS_TITLE_FINAL;
+    isTitleEl.classList.remove('alarmed');
+    isShipRowEl.classList.add('visible');
+    isCardEl.classList.add('unpaid');
+    isShipLabelEl.textContent = 'Aug 2025 shipment \u00b7 UNPAID';
+    isStageEl.classList.add('split');
+    isShowSignals(IS_SIGNALS);
+    isDone = true;
+    isHintEl.textContent = '\u2192 ADVANCE TO NEXT SLIDE';
+    isHintEl.classList.add('handoff');
+    isUpdateDots(3);
+  }
+
+  isApplyStep(0);
+</script>
+
+</body>
+</html>

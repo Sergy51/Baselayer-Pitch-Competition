@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearTerms — Slide 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue:          #384CE3;
+    --blue-dark:     #2A3ABF;
+    --bg:            #FFFFFF;
+    --bg-alt:        #F7F8FC;
+    --text:          #1A1A2E;
+    --text-sec:      #5A5A7A;
+    --text-muted:    #8E8EA0;
+    --border:        #E2E4EF;
+    --red:           #E34848;
+    --red-soft:      #FEF2F2;
+    --red-border:    #FECACA;
+    --amber:         #D97706;
+    --amber-soft:    #FFFBEB;
+    --amber-border:  #FDE68A;
+    --green:         #16A34A;
+    --green-soft:    #F0FDF4;
+    --green-border:  #BBF7D0;
+    --font:          'Inter', sans-serif;
+    --mono:          'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--text);
+    font-family: var(--font);
+    color: var(--text);
+  }
+
+  .slide {
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    overflow: hidden;
+  }
+
+  /* ── Top bar ── */
+  .top-bar {
+    padding: 0.65cm 1.1cm 0;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+
+  .slide-label {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--blue);
+    white-space: nowrap;
+  }
+
+  .slide-title {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    color: var(--text);
+    transition: color 0.4s ease;
+  }
+
+  .slide-title.alarmed { color: var(--red); }
+
+  /* ── Stage ── */
+  /* This is the area that transitions from single-panel to two-panel */
+  .stage {
+    display: grid;
+    grid-template-columns: 1fr 0fr;
+    gap: 0;
+    padding: 0.45cm 1.1cm;
+    min-height: 0;
+    transition: grid-template-columns 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+
+  .stage.split {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* ── Panels ── */
+  .panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .panel-left {
+    padding-right: 0;
+    transition: padding-right 0.55s ease;
+  }
+
+  .stage.split .panel-left {
+    padding-right: 24px;
+    border-right: 1px solid var(--border);
+  }
+
+  .panel-right {
+    padding-left: 24px;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 0.45s ease 0.3s, transform 0.45s ease 0.3s;
+    pointer-events: none;
+  }
+
+  .stage.split .panel-right {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .panel-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  /* ── Customer card ── */
+  .customer-card {
+    background: var(--bg-alt);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex-shrink: 0;
+    transition: background 0.5s ease, border-color 0.5s ease;
+  }
+
+  .customer-card.unpaid {
+    background: var(--red-soft);
+    border-color: var(--red-border);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-company {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    transition: color 0.4s;
+  }
+
+  .customer-card.unpaid .card-company { color: var(--red); }
+
+  .card-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  .tag-ok     { background: var(--green-soft); color: var(--green); border: 1px solid var(--green-border); }
+  .tag-unpaid { background: var(--red-soft); color: var(--red); border: 1px solid var(--red-border); display: none; }
+
+  .customer-card.unpaid .tag-ok     { display: none; }
+  .customer-card.unpaid .tag-unpaid { display: block; }
+
+  .card-rows { display: flex; flex-direction: column; gap: 11px; }
+
+  .card-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+  }
+
+  .card-row-label { color: var(--text-muted); }
+
+  .card-row-value {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .card-row-value.ok   { color: var(--green); }
+  .card-row-value.warn { color: var(--amber); }
+
+  /* Shipment row — hidden until step 2 */
+  .shipment-row {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.4s ease, transform 0.4s ease, background 0.5s ease, border-color 0.5s ease;
+    pointer-events: none;
+  }
+
+  .shipment-row.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .customer-card.unpaid .shipment-row {
+    background: var(--red-soft);
+    border-color: var(--red-border);
+    animation: flashIn 0.5s ease both;
+  }
+
+  @keyframes flashIn {
+    0%   { transform: scale(0.97); }
+    60%  { transform: scale(1.015); }
+    100% { transform: scale(1); }
+  }
+
+  .shipment-label { font-size: 14px; font-weight: 600; color: var(--text-sec); transition: color 0.4s; }
+  .customer-card.unpaid .shipment-label { color: var(--red); }
+
+  .shipment-amount {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    transition: color 0.4s;
+  }
+
+  .customer-card.unpaid .shipment-amount { color: var(--red); }
+
+  .asleep-note {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+    transition: opacity 0.4s;
+  }
+
+  .customer-card.unpaid .asleep-note { opacity: 0; }
+
+  /* ── Signal feed ── */
+  .signal-feed {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .signal-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+    opacity: 0;
+    transform: translateY(7px);
+    transition: opacity 0.32s ease, transform 0.32s ease;
+    flex-shrink: 0;
+  }
+
+  .signal-item.visible { opacity: 1; transform: none; }
+
+  .signal-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  .dot-amber { background: var(--amber); }
+  .dot-red   { background: var(--red); }
+
+  .signal-body { flex: 1; }
+
+  .signal-date {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+    font-weight: 500;
+  }
+
+  .signal-type {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .signal-type.lien    { color: var(--amber); }
+  .signal-type.suspend { color: var(--red); }
+  .signal-type.lawsuit { color: var(--red); }
+
+  .signal-detail {
+    font-size: 12.5px;
+    color: var(--text-sec);
+    line-height: 1.4;
+  }
+
+  .signal-badge {
+    flex-shrink: 0;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 3px;
+  }
+
+  .badge-lien    { background: var(--amber-soft); color: var(--amber); border: 1px solid var(--amber-border); }
+  .badge-suspend { background: var(--red-soft);   color: var(--red);   border: 1px solid var(--red-border); }
+  .badge-lawsuit { background: var(--red-soft);   color: var(--red);   border: 1px solid var(--red-border); }
+
+  /* Signal count badge in panel label */
+  .signal-count {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--red-soft);
+    color: var(--red);
+    border: 1px solid var(--red-border);
+    margin-left: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .signal-count.visible { opacity: 1; }
+
+  /* ── Footer ── */
+  .slide-footer {
+    padding: 0.3cm 1.1cm;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 20;
+  }
+
+  .step-dots { display: flex; gap: 6px; align-items: center; }
+
+  .step-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.25s;
+  }
+
+  .step-dot.active { background: var(--blue); width: 20px; border-radius: 3px; }
+  .step-dot.past   { background: var(--text-muted); }
+
+  .nav-hint {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  .nav-hint.handoff {
+    color: var(--blue);
+    font-weight: 600;
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+  }
+
+  /* Click zones */
+  .click-back { position: fixed; top: 0; left: 0; width: 33%; height: 100%; z-index: 10; cursor: w-resize; }
+  .click-fwd  { position: fixed; top: 0; right: 0; width: 67%; height: 100%; z-index: 10; cursor: e-resize; }
+</style>
+</head>
+<body>
+
+<div class="slide">
+
+  <div class="top-bar">
+    <div class="slide-label">Problem</div>
+    <div class="slide-title" id="slideTitle">A supplier. Three years. No missed payments.</div>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- LEFT -->
+    <div class="panel panel-left">
+      <div class="panel-label" id="leftLabel">What the supplier saw</div>
+
+      <div class="customer-card" id="customerCard">
+        <div class="card-header">
+          <div class="card-company">Northeast Grocery Chain</div>
+          <div class="card-tag tag-ok">● Active customer</div>
+          <div class="card-tag tag-unpaid">● Invoice unpaid</div>
+        </div>
+
+        <div class="card-rows">
+          <div class="card-row">
+            <span class="card-row-label">Credit terms</span>
+            <span class="card-row-value">Net-45</span>
+          </div>
+          <div class="card-row">
+            <span class="card-row-label">Last payment</span>
+            <span class="card-row-value ok">On time · Jul 2025</span>
+          </div>
+          <div class="card-row">
+            <span class="card-row-label">Customer since</span>
+            <span class="card-row-value">2022</span>
+          </div>
+          <div class="card-row">
+            <span class="card-row-label">Credit check</span>
+            <span class="card-row-value warn">2022 · Not refreshed</span>
+          </div>
+          <div class="card-row">
+            <span class="card-row-label">Open invoices</span>
+            <span class="card-row-value ok">$0 past due</span>
+          </div>
+        </div>
+
+        <div class="shipment-row" id="shipmentRow">
+          <div class="shipment-label" id="shipmentLabel">Aug 2025 shipment</div>
+          <div class="shipment-amount">$80,000</div>
+        </div>
+
+        <div class="asleep-note">No alerts. No changes. Business as usual.</div>
+      </div>
+    </div>
+
+    <!-- RIGHT (hidden until step 4) -->
+    <div class="panel panel-right">
+      <div class="panel-label">
+        What was in public records
+        <span class="signal-count" id="signalCount"></span>
+      </div>
+
+      <div class="signal-feed">
+
+        <div class="signal-item" data-idx="0">
+          <div class="signal-dot dot-amber"></div>
+          <div class="signal-body">
+            <div class="signal-date">Apr 28, 2025</div>
+            <div class="signal-type lien">UCC Lien Filed</div>
+            <div class="signal-detail">Corporation Service Company — short-term lender agent</div>
+          </div>
+          <div class="signal-badge badge-lien">Lien #1</div>
+        </div>
+
+        <div class="signal-item" data-idx="1">
+          <div class="signal-dot dot-amber"></div>
+          <div class="signal-body">
+            <div class="signal-date">May 16, 2025</div>
+            <div class="signal-type lien">UCC Lien Filed</div>
+            <div class="signal-detail">ASSN Company — short-term lender</div>
+          </div>
+          <div class="signal-badge badge-lien">Lien #2</div>
+        </div>
+
+        <div class="signal-item" data-idx="2">
+          <div class="signal-dot dot-amber"></div>
+          <div class="signal-body">
+            <div class="signal-date">Jun 2, 2025</div>
+            <div class="signal-type lien">UCC Lien Filed</div>
+            <div class="signal-detail">Corporation Service Company — short-term lender agent</div>
+          </div>
+          <div class="signal-badge badge-lien">Lien #3</div>
+        </div>
+
+        <div class="signal-item" data-idx="3">
+          <div class="signal-dot dot-red"></div>
+          <div class="signal-body">
+            <div class="signal-date">Jul 15, 2025</div>
+            <div class="signal-type suspend">Registration Suspended</div>
+            <div class="signal-detail">NH Secretary of State — state compliance lapse</div>
+          </div>
+          <div class="signal-badge badge-suspend">Suspended</div>
+        </div>
+
+        <div class="signal-item" data-idx="4">
+          <div class="signal-dot dot-amber"></div>
+          <div class="signal-body">
+            <div class="signal-date">Aug 1, 2025</div>
+            <div class="signal-type lien">UCC Lien Filed</div>
+            <div class="signal-detail">Corporation Service Company — short-term lender agent</div>
+          </div>
+          <div class="signal-badge badge-lien">Lien #4</div>
+        </div>
+
+        <div class="signal-item" data-idx="5">
+          <div class="signal-dot dot-red"></div>
+          <div class="signal-body">
+            <div class="signal-date">Aug 14, 2025</div>
+            <div class="signal-type lawsuit">Lawsuit Filed</div>
+            <div class="signal-detail">PA Court of Common Pleas — active litigation</div>
+          </div>
+          <div class="signal-badge badge-lawsuit">Lawsuit</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="slide-footer">
+    <div class="step-dots" id="stepDots"></div>
+    <div class="nav-hint" id="navHint">SPACE OR → TO ADVANCE</div>
+  </div>
+
+</div>
+
+<div class="click-back" id="clickBack"></div>
+<div class="click-fwd"  id="clickFwd"></div>
+
+<script>
+  /*
+    Manual steps 0–3:
+      0: Left only. Clean card.
+      1: $80K shipment appears.
+      2: Card flips red — UNPAID.
+      3: Right panel slides in → signals auto-play sequentially → title updates.
+    After step 3 is triggered, signals appear automatically every 900ms.
+    Once all signals are shown, title updates to final line and nav hint shows handoff.
+  */
+
+  const SIGNALS = 6;
+  const MANUAL  = 4; // steps 0–3 are click-driven
+
+  const stage        = document.getElementById('stage');
+  const slideTitle   = document.getElementById('slideTitle');
+  const customerCard = document.getElementById('customerCard');
+  const shipmentRow  = document.getElementById('shipmentRow');
+  const shipmentLabel= document.getElementById('shipmentLabel');
+  const signalCount  = document.getElementById('signalCount');
+  const stepDots     = document.getElementById('stepDots');
+  const navHint      = document.getElementById('navHint');
+  const signals      = Array.from(document.querySelectorAll('.signal-item'));
+
+  const TITLES = [
+    'A supplier. Three years. No missed payments.',
+    '$80,000 shipment goes out in August.',
+    'Six weeks later, the invoice is unpaid.',
+    'When they dig in, here\'s what they find.',
+  ];
+  const TITLE_FINAL = 'Every signal was in public records. Nobody was watching.';
+
+  // Build dots — one per manual step only (cleaner)
+  for (let i = 0; i < MANUAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot';
+    stepDots.appendChild(d);
+  }
+
+  let step       = 0;       // manual step (0–3)
+  let autoTimer  = null;    // handle for auto-sequence
+  let autoRunning= false;
+  let done       = false;   // true once all signals shown
+
+  function updateDots(n) {
+    const dots = stepDots.querySelectorAll('.step-dot');
+    dots.forEach((d, i) => {
+      d.classList.toggle('past',   i < n);
+      d.classList.toggle('active', i === n);
+    });
+  }
+
+  function showSignals(upTo) {
+    // upTo: how many signals visible (0–6)
+    signals.forEach((s, i) => s.classList.toggle('visible', i < upTo));
+    if (upTo > 0) {
+      signalCount.textContent = upTo + ' signal' + (upTo !== 1 ? 's' : '');
+      signalCount.classList.add('visible');
+    } else {
+      signalCount.classList.remove('visible');
+    }
+  }
+
+  function startAutoSequence() {
+    if (autoRunning) return;
+    autoRunning = true;
+    let shown = 0;
+
+    function tick() {
+      shown++;
+      showSignals(shown);
+      if (shown < SIGNALS) {
+        autoTimer = setTimeout(tick, 900);
+      } else {
+        // All signals shown — update title after a brief pause
+        autoTimer = setTimeout(() => {
+          slideTitle.textContent = TITLE_FINAL;
+          slideTitle.classList.remove('alarmed');
+          done = true;
+          navHint.textContent = '→ ADVANCE TO NEXT SLIDE';
+          navHint.classList.add('handoff');
+        }, 700);
+      }
+    }
+
+    // Small initial delay so the panel animation finishes first
+    autoTimer = setTimeout(tick, 700);
+  }
+
+  function stopAutoSequence() {
+    if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+    autoRunning = false;
+  }
+
+  function applyStep(n) {
+    slideTitle.textContent = TITLES[n] || TITLES[TITLES.length - 1];
+    slideTitle.classList.toggle('alarmed', n >= 2);
+
+    shipmentRow.classList.toggle('visible', n >= 1);
+
+    customerCard.classList.toggle('unpaid', n >= 2);
+    shipmentLabel.textContent = n >= 2 ? 'Aug 2025 shipment · UNPAID' : 'Aug 2025 shipment';
+
+    stage.classList.toggle('split', n >= 3);
+
+    // Reset signals when going back before step 3
+    if (n < 3) {
+      stopAutoSequence();
+      showSignals(0);
+      done = false;
+      navHint.textContent = 'SPACE OR → TO ADVANCE';
+      navHint.classList.remove('handoff');
+    }
+
+    updateDots(n);
+    step = n;
+  }
+
+  function next() {
+    if (done) return; // prevent advancing once sequence is complete (handled by deck)
+    if (autoRunning) return; // don't skip ahead mid-sequence
+    if (step < MANUAL - 1) {
+      applyStep(step + 1);
+      if (step === 3) startAutoSequence();
+    }
+  }
+
+  function prev() {
+    stopAutoSequence();
+    done = false;
+    if (step > 0) applyStep(step - 1);
+  }
+
+  applyStep(0);
+
+  document.addEventListener('keydown', e => {
+    if ([' ', 'ArrowRight', 'ArrowDown'].includes(e.key)) { e.preventDefault(); next(); }
+    if (['ArrowLeft', 'ArrowUp'].includes(e.key))          { e.preventDefault(); prev(); }
+  });
+
+  document.getElementById('clickFwd').addEventListener('click',  next);
+  document.getElementById('clickBack').addEventListener('click', prev);
+</script>
+</body>
+</html>
