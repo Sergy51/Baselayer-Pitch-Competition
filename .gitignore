@@ -14,3 +14,9 @@
 
 # Claude Code
 .claude/
+
+# Generated artifacts (regenerate with: node export_pdf.mjs)
+Export/
+node_modules/
+package.json
+package-lock.json
