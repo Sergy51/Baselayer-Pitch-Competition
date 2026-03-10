@@ -659,7 +659,11 @@
   }
 
   function next() {
-    if (done) return; // prevent advancing once sequence is complete (handled by deck)
+    if (done) {
+      // Tell parent deck to advance to next slide
+      if (window.parent !== window) window.parent.postMessage({ action: 'next' }, '*');
+      return;
+    }
     if (autoRunning) return; // don't skip ahead mid-sequence
     if (step < MANUAL - 1) {
       applyStep(step + 1);
@@ -668,12 +672,47 @@
   }
 
   function prev() {
+    if (step === 0) {
+      // Tell parent deck to go to previous slide
+      if (window.parent !== window) window.parent.postMessage({ action: 'prev' }, '*');
+      return;
+    }
     stopAutoSequence();
     done = false;
-    if (step > 0) applyStep(step - 1);
+    applyStep(step - 1);
+  }
+
+  function reset() {
+    stopAutoSequence();
+    done = false;
+    applyStep(0);
+  }
+
+  function showDone() {
+    stopAutoSequence();
+    step = 3;
+    slideTitle.textContent = TITLE_FINAL;
+    slideTitle.classList.remove('alarmed');
+    shipmentRow.classList.add('visible');
+    customerCard.classList.add('unpaid');
+    shipmentLabel.textContent = 'Aug 2025 shipment · UNPAID';
+    stage.classList.add('split');
+    showSignals(SIGNALS);
+    done = true;
+    navHint.textContent = '→ ADVANCE TO NEXT SLIDE';
+    navHint.classList.add('handoff');
+    updateDots(3);
   }
 
   applyStep(0);
+
+  // Listen for commands from parent deck
+  window.addEventListener('message', e => {
+    if (e.data === 'next') next();
+    else if (e.data === 'prev') prev();
+    else if (e.data === 'reset') reset();
+    else if (e.data === 'showDone') showDone();
+  });
 
   document.addEventListener('keydown', e => {
     if ([' ', 'ArrowRight', 'ArrowDown'].includes(e.key)) { e.preventDefault(); next(); }

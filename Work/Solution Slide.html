@@ -1,0 +1,169 @@
+<!-- Solution Slide — removed from deck, preserved for reference -->
+
+<!-- CSS -->
+<style>
+  /* Solution section */
+  .solution-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    margin: 24px 0;
+  }
+
+  .solution-card {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+
+  .solution-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .solution-icon.economics { background: #2D8A4E15; }
+  .solution-icon.tam { background: #384CE315; }
+  .solution-icon.opex { background: #1BA8A015; }
+
+  .solution-card h4 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .solution-card p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+  }
+
+  /* Solution slide layout */
+  .solution-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .solution-what-card {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .solution-what-card .icp-block-label {
+    margin-bottom: 16px;
+    color: var(--blue);
+  }
+
+  .solution-what-card .solution-what-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+  }
+
+  .solution-what-card p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .solution-benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .solution-benefit-card {
+    flex: 1;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    display: flex;
+    gap: 18px;
+    align-items: center;
+  }
+
+  .solution-benefit-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .solution-benefit-icon.economics { background: #2D8A4E15; }
+  .solution-benefit-icon.growth { background: #384CE315; }
+  .solution-benefit-icon.ops { background: #1BA8A015; }
+
+  .solution-benefit-content h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .solution-benefit-content p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+</style>
+
+<!-- HTML -->
+<div class="slide" data-slide="6">
+  <div class="slide-label">Solution</div>
+  <h2>Optimized B2B credit decisions for CFOs and credit managers, powered by Baselayer AI risk platform</h2>
+  <p class="lead">Real-time credit risk scoring that plugs into any B2B checkout or credit approval workflow.</p>
+  <div class="slide-body">
+    <div class="solution-layout">
+      <div class="solution-what-card">
+        <div class="icp-block-label">What we build</div>
+        <div class="solution-what-text">
+          <p>A credit intelligence platform that gives B2B sellers <strong>real-time visibility into buyer financial health</strong> before they extend terms.</p>
+          <p>ClearTerms <strong>continuously monitors public records</strong> (UCC filings, litigation, registration status) and <strong>surfaces risk signals</strong> the moment they appear.</p>
+          <p>Delivered as an <strong>API and dashboard that plugs into existing invoicing and ERP workflows</strong>. No new software required.</p>
+        </div>
+      </div>
+      <div class="solution-benefits">
+        <div class="solution-benefit-card">
+          <div class="solution-benefit-icon economics">&#x1F4B0;</div>
+          <div class="solution-benefit-content">
+            <h4>Reduce bad debt losses</h4>
+            <p>Cut 2-8% bad debt rate through data-driven credit decisions. Flag deteriorating buyers before they default.</p>
+          </div>
+        </div>
+        <div class="solution-benefit-card">
+          <div class="solution-benefit-icon growth">&#x1F4C8;</div>
+          <div class="solution-benefit-content">
+            <h4>Grow revenue safely</h4>
+            <p>Extend credit to smaller buyers that were previously too risky to manually underwrite. More customers, same risk tolerance.</p>
+          </div>
+        </div>
+        <div class="solution-benefit-card">
+          <div class="solution-benefit-icon ops">&#x26A1;</div>
+          <div class="solution-benefit-content">
+            <h4>Eliminate manual review</h4>
+            <p>Automated, instant credit checks replace spreadsheet-based processes. Baselayer's AI already achieves 72% less manual review for its FI clients.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

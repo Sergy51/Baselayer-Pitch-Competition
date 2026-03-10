@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearTerms — Trade Credit Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --white:        #ffffff;
+    --bg:           #f7f8fa;
+    --surface:      #ffffff;
+    --surface-2:    #f2f4f7;
+    --border:       #e4e7ec;
+    --border-mid:   #cdd2da;
+    --cobalt:       #1e40af;
+    --cobalt-mid:   #2563eb;
+    --cobalt-light: #eff4ff;
+    --cobalt-border:#bfcfff;
+    --ink:          #0f172a;
+    --ink-mid:      #334155;
+    --ink-light:    #64748b;
+    --ink-faint:    #94a3b8;
+    --red:          #991b1b;
+    --red-soft:     #fef2f2;
+    --red-border:   #fecaca;
+    --red-text:     #b91c1c;
+    --amber:        #92400e;
+    --amber-soft:   #fffbeb;
+    --amber-border: #fde68a;
+    --amber-text:   #b45309;
+    --teal:         #0f766e;
+    --teal-soft:    #f0fdfa;
+    --teal-border:  #99f6e4;
+    --teal-text:    #0d9488;
+    --green:        #14532d;
+    --green-soft:   #f0fdf4;
+    --green-border: #bbf7d0;
+    --green-text:   #15803d;
+    --serif:        'Playfair Display', Georgia, serif;
+    --sans:         'Inter', system-ui, sans-serif;
+    --mono:         'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 14px; line-height: 1.5; }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 54px;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-text {
+    font-family: var(--serif);
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.2px;
+  }
+
+  .logo-divider {
+    width: 1px;
+    height: 18px;
+    background: var(--border-mid);
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--ink-faint);
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .topbar-org {
+    font-size: 13px;
+    color: var(--ink-light);
+  }
+
+  .topbar-org strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .topbar-avatar {
+    width: 30px; height: 30px;
+    background: var(--cobalt-light);
+    border: 1px solid var(--cobalt-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--cobalt);
+  }
+
+  /* ── LAYOUT ── */
+  .app { display: none; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed;
+    top: 54px; left: 0;
+    width: 200px; bottom: 0;
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    padding: 20px 12px;
+    overflow-y: auto;
+    z-index: 90;
+  }
+
+  .nav-group { margin-bottom: 24px; }
+
+  .nav-group-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding: 0 10px;
+    margin-bottom: 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 13.5px;
+    color: var(--ink-mid);
+    cursor: pointer;
+    transition: all 0.12s;
+    font-weight: 400;
+    position: relative;
+  }
+
+  .nav-item:hover { background: var(--bg); color: var(--ink); }
+
+  .nav-item.active {
+    background: var(--cobalt-light);
+    color: var(--cobalt);
+    font-weight: 500;
+  }
+
+  .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+  .nav-item.active svg { opacity: 1; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--red-text);
+    color: white;
+    font-size: 10px;
+    font-family: var(--mono);
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  /* ── MAIN ── */
+  .main {
+    position: fixed;
+    top: 54px; left: 200px; right: 0; bottom: 0;
+    overflow-y: auto;
+  }
+
+  .screen {
+    padding-bottom: 80px;
+    display: none;
+  }
+  .screen.active { display: block; animation: fadeUp 0.25s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    padding: 28px 36px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--white);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .page-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 4px;
+  }
+
+  .page-title {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.3px;
+  }
+
+  .page-meta {
+    font-size: 12.5px;
+    color: var(--ink-light);
+    margin-top: 3px;
+  }
+
+  /* ── ALERT BANNER ── */
+  .alert-strip {
+    margin: 20px 36px 0;
+    background: var(--red-soft);
+    border: 1px solid var(--red-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .alert-strip:hover { border-color: var(--red-text); }
+
+  .alert-strip-dot {
+    width: 8px; height: 8px;
+    background: var(--red-text);
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .alert-strip-text { flex: 1; font-size: 13px; color: var(--red-text); font-weight: 500; }
+  .alert-strip-sub { font-size: 12px; color: var(--ink-light); font-weight: 400; margin-left: 6px; }
+  .alert-strip-cta { font-size: 12px; color: var(--cobalt); font-weight: 500; white-space: nowrap; }
+
+  /* ── STATS ROW ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding: 20px 36px;
+  }
+
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-sub { font-size: 12px; color: var(--ink-light); }
+  .stat-sub.danger { color: var(--red-text); }
+  .stat-sub.warn   { color: var(--amber-text); }
+  .stat-sub.ok     { color: var(--green-text); }
+
+  /* ── TABLE SECTION ── */
+  .table-wrap {
+    padding: 0 36px 40px;
+  }
+
+  .table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .table-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--cobalt);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--sans);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-primary:hover { background: var(--cobalt-mid); }
+
+  .buyer-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .buyer-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding: 10px 16px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .buyer-table td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink-mid);
+    vertical-align: middle;
+  }
+
+  .buyer-table tr:last-child td { border-bottom: none; }
+  .buyer-table tbody tr { cursor: pointer; transition: background 0.1s; }
+  .buyer-table tbody tr:hover td { background: var(--bg); }
+
+  .buyer-name { font-weight: 500; color: var(--ink); font-size: 13.5px; }
+  .buyer-detail { font-size: 11.5px; color: var(--ink-faint); margin-top: 1px; }
+
+  /* Credit rating pill */
+  .rating-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px 4px 8px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    font-weight: 600;
+    font-family: var(--mono);
+    border: 1px solid transparent;
+  }
+
+  .rating-pill .r-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+
+  .rating-pill.F { background: var(--red-soft); border-color: var(--red-border); color: var(--red-text); }
+  .rating-pill.F .r-dot { background: var(--red-text); }
+  .rating-pill.C { background: var(--amber-soft); border-color: var(--amber-border); color: var(--amber-text); }
+  .rating-pill.C .r-dot { background: var(--amber-text); }
+  .rating-pill.B { background: var(--teal-soft); border-color: var(--teal-border); color: var(--teal-text); }
+  .rating-pill.B .r-dot { background: var(--teal-text); }
+  .rating-pill.A { background: var(--green-soft); border-color: var(--green-border); color: var(--green-text); }
+  .rating-pill.A .r-dot { background: var(--green-text); }
+
+  .delta { font-family: var(--mono); font-size: 12px; }
+  .delta.down   { color: var(--red-text); }
+  .delta.stable { color: var(--ink-faint); }
+  .delta.up     { color: var(--green-text); }
+
+  .flag-chip {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--red-soft);
+    color: var(--red-text);
+    border: 1px solid var(--red-border);
+    font-family: var(--mono);
+  }
+
+  .terms-mono { font-family: var(--mono); font-size: 12.5px; color: var(--ink-light); }
+
+  /* ── NEW CHECK SCREEN ── */
+  .form-screen {
+    max-width: 560px;
+    margin: 48px auto;
+    padding: 0 36px;
+  }
+
+  .form-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 32px;
+  }
+
+  .form-card-title {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .form-card-sub {
+    font-size: 13px;
+    color: var(--ink-light);
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .field { margin-bottom: 18px; }
+
+  .field-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-mid);
+    margin-bottom: 6px;
+    letter-spacing: 0.1px;
+  }
+
+  .field-hint { font-weight: 400; color: var(--ink-faint); margin-left: 4px; }
+
+  .field-input {
+    width: 100%;
+    background: var(--white);
+    border: 1px solid var(--border-mid);
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 13.5px;
+    color: var(--ink);
+    font-family: var(--sans);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .field-input:focus {
+    border-color: var(--cobalt-mid);
+    box-shadow: 0 0 0 3px #2563eb18;
+  }
+
+  .field-input::placeholder { color: var(--ink-faint); }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .divider-or {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0 18px;
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+
+  .divider-or::before, .divider-or::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .run-btn {
+    width: 100%;
+    background: var(--cobalt);
+    color: white;
+    border: none;
+    padding: 11px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--sans);
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-top: 6px;
+    letter-spacing: 0.1px;
+  }
+
+  .run-btn:hover { background: var(--cobalt-mid); box-shadow: 0 4px 16px #2563eb30; }
+
+  /* ── LOADING ── */
+  .loading-wrap {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 64px 36px;
+    text-align: center;
+  }
+
+  .loading-wrap.visible { display: flex; }
+
+  .loader-ring {
+    width: 40px; height: 40px;
+    border: 2px solid var(--border);
+    border-top-color: var(--cobalt);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin-bottom: 20px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-company { font-family: var(--serif); font-size: 17px; color: var(--ink); margin-bottom: 20px; }
+
+  .check-steps { list-style: none; text-align: left; }
+
+  .check-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12.5px;
+    font-family: var(--mono);
+    color: var(--ink-faint);
+    padding: 5px 0;
+    transition: color 0.2s;
+  }
+
+  .check-step.done   { color: var(--green-text); }
+  .check-step.active { color: var(--cobalt); }
+
+  .step-mark { width: 16px; text-align: center; flex-shrink: 0; }
+
+  /* ── REPORT SCREEN ── */
+  .report-top {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 36px 0;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12.5px;
+    color: var(--ink-light);
+    cursor: pointer;
+    margin-bottom: 12px;
+    transition: color 0.15s;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  .back-btn:hover { color: var(--cobalt); border-color: var(--cobalt-border); background: var(--cobalt-light); }
+
+  .report-company-label { font-size: 11px; font-weight: 500; letter-spacing: 0.7px; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 4px; }
+
+  .report-company-name {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+
+  /* Rating meter */
+  .rating-meter {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 20px;
+  }
+
+  .meter-segment {
+    flex: 1;
+    height: 6px;
+    position: relative;
+  }
+
+  .meter-segment:first-child { border-radius: 3px 0 0 3px; }
+  .meter-segment:last-child  { border-radius: 0 3px 3px 0; }
+
+  .meter-label {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .meter-pointer {
+    position: absolute;
+    top: -4px;
+    width: 14px; height: 14px;
+    background: var(--white);
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+  }
+
+  /* Score summary row */
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    padding: 20px 36px 24px;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .score-main { flex: 1; }
+
+  .score-number {
+    font-family: var(--mono);
+    font-size: 44px;
+    font-weight: 500;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .score-number.F { color: var(--red-text); }
+  .score-number.C { color: var(--amber-text); }
+  .score-number.B { color: var(--cobalt); }
+  .score-number.B { color: var(--teal-text); }
+  .score-number.A { color: var(--green-text); }
+
+  .score-label { font-size: 13px; font-weight: 500; color: var(--ink-mid); }
+  .score-desc  { font-size: 13px; color: var(--ink-light); margin-top: 6px; line-height: 1.5; max-width: 420px; }
+
+  .score-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 32px;
+    border-left: 1px solid var(--border);
+  }
+
+  .meta-item { }
+  .meta-item-label { font-size: 10.5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink-faint); margin-bottom: 2px; }
+  .meta-item-value { font-size: 13.5px; font-weight: 500; color: var(--ink); }
+
+  /* Recommendation */
+  .rec-box {
+    margin: 20px 36px;
+    border-radius: 8px;
+    padding: 16px 20px;
+    border: 1px solid transparent;
+  }
+
+  .rec-box.F { background: var(--red-soft); border-color: var(--red-border); }
+  .rec-box.C { background: var(--amber-soft); border-color: var(--amber-border); }
+  .rec-box.A { background: var(--green-soft); border-color: var(--green-border); }
+  .rec-box.B { background: #f0fdf4; border-color: #bbf7d0; }
+
+  /* ── Timeline ── */
+  .timeline-wrap { padding: 0 36px 32px; }
+  .timeline-heading { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 16px; }
+  .timeline { display: flex; flex-direction: column; gap: 0; position: relative; }
+  .timeline::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 1px; background: var(--border); }
+  .tl-item { display: flex; gap: 16px; align-items: flex-start; padding: 10px 0; position: relative; }
+  .tl-dot { width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0; margin-top: 2px; z-index: 1; border: 2px solid white; }
+  .tl-dot.red    { background: var(--red-text); box-shadow: 0 0 0 2px var(--red-border); }
+  .tl-dot.amber  { background: var(--amber-text); box-shadow: 0 0 0 2px var(--amber-border); }
+  .tl-dot.green  { background: #15803d; box-shadow: 0 0 0 2px #bbf7d0; }
+  .tl-content { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; }
+  .tl-date { font-size: 11px; font-weight: 600; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 3px; }
+  .tl-event { font-size: 13px; color: var(--ink-mid); line-height: 1.5; }
+
+
+
+  .rec-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 5px; }
+
+  .rec-text { font-size: 13.5px; color: var(--ink); font-weight: 500; line-height: 1.55; }
+
+  /* Signals */
+  .signals-wrap { padding: 0 36px 120px; }
+
+  .signals-heading {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+
+  .signals-table {
+    width: 100%;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    border-collapse: collapse;
+  }
+
+  .signals-table th {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding: 9px 16px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+  }
+
+  .signals-table td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .signals-table tr:last-child td { border-bottom: none; }
+  .signals-table tbody tr { animation: slideIn 0.25s ease both; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-5px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .signals-table tbody tr:nth-child(1) { animation-delay: 0.04s; }
+  .signals-table tbody tr:nth-child(2) { animation-delay: 0.08s; }
+  .signals-table tbody tr:nth-child(3) { animation-delay: 0.12s; }
+  .signals-table tbody tr:nth-child(4) { animation-delay: 0.16s; }
+  .signals-table tbody tr:nth-child(5) { animation-delay: 0.20s; }
+  .signals-table tbody tr:nth-child(6) { animation-delay: 0.24s; }
+  .signals-table tbody tr:nth-child(7) { animation-delay: 0.28s; }
+
+  .sig-name  { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+  .sig-detail { font-size: 12px; color: var(--ink-light); line-height: 1.45; }
+
+  .sig-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10.5px;
+    font-weight: 600;
+    font-family: var(--mono);
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+
+  .sig-badge.F { background: var(--red-soft); border-color: var(--red-border); color: var(--red-text); }
+  .sig-badge.C { background: var(--amber-soft); border-color: var(--amber-border); color: var(--amber-text); }
+  .sig-badge.B { background: var(--teal-soft); border-color: var(--teal-border); color: var(--teal-text); }
+  .sig-badge.A { background: var(--green-soft); border-color: var(--green-border); color: var(--green-text); }
+
+  /* ── ACTION BAR ── */
+  .action-bar {
+    position: sticky;
+    bottom: 0;
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    padding: 12px 36px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 50;
+  }
+
+  .btn-ghost {
+    flex: 0 0 auto;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-mid);
+    background: var(--white);
+    color: var(--ink-mid);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--sans);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+
+  .btn-ghost:hover { border-color: var(--ink-mid); color: var(--ink); }
+
+  .btn-warn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--amber-border);
+    background: var(--amber-soft);
+    color: var(--amber-text);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--sans);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+
+  .btn-warn:hover { border-color: var(--amber-text); }
+
+  .btn-cobalt {
+    flex: 0 0 auto;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    background: var(--cobalt);
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--sans);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+
+  .btn-cobalt:hover { background: var(--cobalt-mid); }
+
+  /* ── ALERT DETAIL ── */
+  .score-history-card {
+    margin: 20px 36px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+  }
+
+  .history-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 16px; }
+
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    height: 80px;
+    padding-bottom: 24px;
+    position: relative;
+  }
+
+  .bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    position: relative;
+  }
+
+  .bar-fill {
+    width: 100%;
+    border-radius: 3px 3px 0 0;
+    transition: height 0.5s ease;
+  }
+
+  .bar-val {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .bar-date {
+    font-size: 10px;
+    color: var(--ink-faint);
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+  .events-list { margin: 20px 36px; }
+
+  .events-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+
+  .event-row {
+    display: flex;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .event-row:last-child { border-bottom: none; }
+
+  .event-date {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    width: 72px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .event-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 4px;
+  }
+
+  .event-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .event-connector {
+    width: 1px;
+    flex: 1;
+    background: var(--border);
+    margin-top: 4px;
+  }
+
+  .event-text { font-size: 13px; color: var(--ink-light); line-height: 1.5; }
+  .event-text strong { color: var(--ink); font-weight: 500; }
+
+  /* ── FOOTER TAG ── */
+  .powered-tag {
+    padding: 12px 36px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--ink-faint);
+  }
+
+  .powered-tag-dot {
+    width: 5px; height: 5px;
+    background: var(--cobalt);
+    border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-text">ClearTerms</div>
+    <div class="logo-divider"></div>
+    <div class="logo-sub">Trade Credit Intelligence</div>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-org">Meridian Supply Co. &nbsp;<strong>Enterprise</strong></span>
+    <div class="topbar-avatar">MS</div>
+  </div>
+</div>
+
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="nav-group">
+      <div class="nav-group-label">Monitor</div>
+      <div class="nav-item active" onclick="showScreen('portfolio')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Portfolio
+        <span class="nav-badge">2</span>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Assess</div>
+      <div class="nav-item" onclick="showScreen('new-check')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        New Buyer Check
+      </div>
+    </div>
+    <div class="nav-group" style="margin-top:auto;padding-top:24px;border-top:1px solid var(--border);">
+      <div class="nav-group-label">Account</div>
+      <div class="nav-item">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Settings
+      </div>
+      <div class="nav-item">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        API Access
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ═══════════════ SCREEN 1: PORTFOLIO ═══════════════ -->
+    <div id="screen-portfolio" class="screen active">
+
+      <div class="page-header">
+        <div>
+          <div class="page-eyebrow">Buyer Portfolio</div>
+          <div class="page-title">Active Buyers</div>
+          <div class="page-meta">12 buyers monitored · Signals refreshed 4 minutes ago</div>
+        </div>
+      </div>
+
+      <div class="alert-strip" onclick="showScreen('bathbusters')">
+        <div class="alert-strip-dot"></div>
+        <div class="alert-strip-text">
+          2 buyers flagged this week
+          <span class="alert-strip-sub">Bath Busters, Inc. · J Fuels, LLC</span>
+        </div>
+        <div class="alert-strip-cta">Review alerts →</div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Exposure</div>
+          <div class="stat-value">$920K</div>
+          <div class="stat-sub">across 6 buyers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">High Risk (F)</div>
+          <div class="stat-value">2</div>
+          <div class="stat-sub danger">↑ 2 new this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Medium Risk (C)</div>
+          <div class="stat-value">1</div>
+          <div class="stat-sub warn">Monitor closely</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Low Risk (A/B)</div>
+          <div class="stat-value">3</div>
+          <div class="stat-sub ok">No action needed</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <div class="table-label">All Buyers</div>
+          <button class="btn-primary" onclick="showScreen('new-check')">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            Check New Buyer
+          </button>
+        </div>
+
+        <table class="buyer-table">
+          <thead>
+            <tr>
+              <th>Buyer</th>
+              <th>Terms Extended</th>
+              <th>Exposure</th>
+              <th>Rating</th>
+              <th>Score</th>
+              <th>30-Day Change</th>
+              <th>Flags</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr onclick="showScreen('bathbusters')" style="cursor:pointer" data-buyer="bathbusters">
+              <td>
+                <div class="buyer-name">Bath Busters, Inc.</div>
+                <div class="buyer-detail">Home Renovation · Massachusetts · Est. 2013</div>
+              </td>
+              <td><span class="terms-mono">Net-45</span></td>
+              <td><span class="terms-mono">$180,000</span></td>
+              <td><span class="rating-pill F">F</span></td>
+              <td><span class="score-mono F">28</span></td>
+              <td><span class="delta-neg">▼ 31</span></td>
+              <td>
+                <span class="flag-chip lien">8 Liens</span>
+                <span class="flag-chip alert">NH Suspended</span>
+              </td>
+            </tr>
+            <tr onclick="showScreen('jfuels')" style="cursor:pointer" data-buyer="jfuels">
+              <td>
+                <div class="buyer-name">J Fuels, LLC</div>
+                <div class="buyer-detail">Fuel Distribution · Pennsylvania · Est. 2015</div>
+              </td>
+              <td><span class="terms-mono">Net-30</span></td>
+              <td><span class="terms-mono">$95,000</span></td>
+              <td><span class="rating-pill F">F</span></td>
+              <td><span class="score-mono F">33</span></td>
+              <td><span class="delta-neg">▼ 18</span></td>
+              <td>
+                <span class="flag-chip lien">2 Liens</span>
+                <span class="flag-chip litigation">6 Open Cases</span>
+              </td>
+            </tr>
+            <tr onclick="showScreen('fitoregon')" style="cursor:pointer" data-buyer="fitoregon">
+              <td>
+                <div class="buyer-name">Fit Oregon, LLC</div>
+                <div class="buyer-detail">Fitness / Retail · Oregon · Est. 2013</div>
+              </td>
+              <td><span class="terms-mono">Net-30</span></td>
+              <td><span class="terms-mono">$62,000</span></td>
+              <td><span class="rating-pill C">C</span></td>
+              <td><span class="score-mono C">54</span></td>
+              <td><span class="delta-neg">▼ 9</span></td>
+              <td>
+                <span class="flag-chip lien">2 Liens</span>
+                <span class="flag-chip litigation">1 Open Case</span>
+              </td>
+            </tr>
+            <tr onclick="showScreen('trailersplus')" style="cursor:pointer" data-buyer="trailersplus">
+              <td>
+                <div class="buyer-name">Trailers Plus, Inc.</div>
+                <div class="buyer-detail">Equipment / Retail · Nevada · Est. 2001</div>
+              </td>
+              <td><span class="terms-mono">Net-60</span></td>
+              <td><span class="terms-mono">$310,000</span></td>
+              <td><span class="rating-pill B">B</span></td>
+              <td><span class="score-mono B">72</span></td>
+              <td><span class="delta-pos">▲ 4</span></td>
+              <td>
+                <span class="flag-chip lien">8 Liens</span>
+              </td>
+            </tr>
+            <tr onclick="showScreen('blount')" style="cursor:pointer" data-buyer="blount">
+              <td>
+                <div class="buyer-name">Blount Cylinder Repair LLC</div>
+                <div class="buyer-detail">Industrial Repair · Alabama · Est. 2018</div>
+              </td>
+              <td><span class="terms-mono">Net-30</span></td>
+              <td><span class="terms-mono">$48,000</span></td>
+              <td><span class="rating-pill B">B</span></td>
+              <td><span class="score-mono B">77</span></td>
+              <td><span class="delta-neutral">— 0</span></td>
+              <td></td>
+            </tr>
+            <tr onclick="showScreen('beerbev')" style="cursor:pointer" data-buyer="beerbev">
+              <td>
+                <div class="buyer-name">BeerBev LLC</div>
+                <div class="buyer-detail">Beverage Distribution · Florida · Est. 2011</div>
+              </td>
+              <td><span class="terms-mono">Net-60</span></td>
+              <td><span class="terms-mono">$225,000</span></td>
+              <td><span class="rating-pill A">A</span></td>
+              <td><span class="score-mono A">96</span></td>
+              <td><span class="delta-pos">▲ 2</span></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════ SCREEN 2: NEW CHECK ═══════════════ -->
+    <div id="screen-new-check" class="screen">
+
+      <div class="form-screen">
+        <div class="form-card" id="form-card">
+          <div class="form-card-title">Check a New Buyer</div>
+          <div class="form-card-sub">Enter business details to run a real-time trade credit assessment against live government and identity data.</div>
+
+          <div class="field">
+            <label class="field-label">Business Name</label>
+            <input class="field-input" type="text" placeholder="e.g. Riverstone Materials Corp." id="input-name" value="" />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">State of Registration</label>
+              <input class="field-input" type="text" placeholder="e.g. Ohio" value="" />
+            </div>
+            <div class="field">
+              <label class="field-label">Business Address</label>
+              <input class="field-input" type="text" placeholder="Street address" value="" />
+            </div>
+          </div>
+
+          <div class="divider-or">or identify by tax ID</div>
+
+          <div class="field">
+            <label class="field-label">EIN / Tax ID <span class="field-hint">— optional, improves match accuracy</span></label>
+            <input class="field-input" type="text" placeholder="XX-XXXXXXX" style="font-family:var(--mono)" value="" />
+          </div>
+
+          <div class="field">
+            <label class="field-label">Credit Terms Being Considered</label>
+            <input class="field-input" type="text" placeholder="e.g. Net-30, $75,000 exposure" value="" id="input-terms" />
+          </div>
+
+          <button class="run-btn" onclick="runCheck()">Run Trade Credit Assessment →</button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-wrap" id="loading-wrap">
+        <div class="loader-ring"></div>
+        <div class="loading-company">Assessing <span id="loading-name">this business</span>…</div>
+        <ul class="check-steps">
+          <li class="check-step" id="cs1"><span class="step-mark">○</span>Verifying Secretary of State registration</li>
+          <li class="check-step" id="cs2"><span class="step-mark">○</span>Checking lien filings across all 50 states</li>
+          <li class="check-step" id="cs3"><span class="step-mark">○</span>Scanning litigation and bankruptcy records</li>
+          <li class="check-step" id="cs4"><span class="step-mark">○</span>Screening OFAC, FBI & sanctions watchlists</li>
+          <li class="check-step" id="cs5"><span class="step-mark">○</span>Analyzing web presence and domain signals</li>
+          <li class="check-step" id="cs6"><span class="step-mark">○</span>Computing trade credit rating</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════ SCREEN 3: RISK REPORT ═══════════════ -->
+    <div id="screen-report" class="screen">
+
+      <div class="report-top">
+        <div class="back-btn" onclick="showScreen('new-check')">← Back to Search</div>
+        <div class="report-company-label">Trade Credit Assessment · <span id="report-date"></span></div>
+        <div class="report-company-name" id="report-name">New Age Environmental Services, Inc.</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-main">
+          <div class="score-number F">F &nbsp;<span style="font-size:22px;vertical-align:middle">34/100</span></div>
+          <div class="score-label" style="color:var(--red-text);margin-top:4px">High Risk — Not recommended for unsecured credit</div>
+          <div class="score-desc">6 active liens, 4 filed within 6 weeks. Multiple short-term lenders. 2 open lawsuits. KYB 100/A — identity verified, risk is financial.</div>
+        </div>
+        <div class="score-meta">
+          <div class="meta-item">
+            <div class="meta-item-label">Assessed Terms</div>
+            <div class="meta-item-value" id="report-terms">Net-60 · $150,000</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-item-label">Business Structure</div>
+            <div class="meta-item-value">C-Corp · Texas</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-item-label">Time in Business</div>
+            <div class="meta-item-value">18 yrs, 2 mo</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-item-label">ClearTerms Industry Risk</div>
+            <div class="meta-item-value" style="color:var(--amber-text)">Medium · Environmental Svcs</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rec-box F">
+        <div class="rec-eyebrow">Recommended Action</div>
+        <div class="rec-text">Do not extend credit. Filing 6 liens in 6 weeks — especially with short-term lenders — is a strong sign the business is in a cash crisis and cannot access normal bank financing. Require full payment upfront. If you must sell to them, keep the balance under $10,000 and require a personal guarantee from the owner.</div>
+      </div>
+
+      <div class="signals-wrap">
+        <div class="signals-heading">Signal Breakdown</div>
+        <table class="signals-table">
+          <thead>
+            <tr>
+              <th style="width:200px">Signal</th>
+              <th>Detail</th>
+              <th style="width:110px">Risk Level</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="sig-name">Active lien Liens (6)</div></td>
+              <td><div class="sig-detail">6 active liens in Texas. Most recent: Sep 29, 2025 — Sofiagrey LLC (short-term lender). Three more in a single week in August 2025 — filed through Corporation Service Company, a registered agent commonly used by short-term lenders. Earlier filings: Sep 2024 (FFE Services) and a 2020 government loan. Filing this many claims in a short window is one of the strongest predictors of default.</div></td>
+              <td><span class="sig-badge F">HIGH RISK</span></td>
+            </tr>
+            <tr>
+              <td><div class="sig-name">Open Litigation (2)</div></td>
+              <td><div class="sig-detail">Two open lawsuits: (1) Spartan Capital is suing the company in New York — likely a debt collection case. (2) An individual, Kelly Hopkins, is suing the owner personally in New Mexico. Neither involves bankruptcy.</div></td>
+              <td><span class="sig-badge F">HIGH RISK</span></td>
+            </tr>
+            <tr>
+              <td><div class="sig-name">Registered Address</div></td>
+              <td><div class="sig-detail">Their registered business address is a residential home, not a commercial property. The address itself matches state records — but running a C-Corp from a home address is worth noting as a structural risk.</div></td>
+              <td><span class="sig-badge C">MEDIUM</span></td>
+            </tr>
+            <tr>
+              <td><div class="sig-name">KYB Score (Baselayer)</div></td>
+              <td><div class="sig-detail">KYB 100/A — business identity fully verified. Name, tax ID, and owners (Dennis Rodriguez, Ana C. Tejada) all confirmed. Registered in Texas since December 2007. This is not a fraud risk — it is a financial risk.</div></td>
+              <td><span class="sig-badge A">CLEAR</span></td>
+            </tr>
+            <tr>
+              <td><div class="sig-name">Watchlist Screening</div></td>
+              <td><div class="sig-detail">No hits on any government sanctions or watchlists. Both owners individually cleared.</div></td>
+              <td><span class="sig-badge A">CLEAR</span></td>
+            </tr>
+            <tr>
+              <td><div class="sig-name">Registration Status</div></td>
+              <td><div class="sig-detail">Active Texas C-Corp, incorporated December 2007 — 18+ years in business. No suspensions or dissolution on record.</div></td>
+              <td><span class="sig-badge A">CLEAR</span></td>
+            </tr>
+            <tr>
+              <td><div class="sig-name">Web Presence</div></td>
+              <td><div class="sig-detail">Website found at newageenvironmentalservices.com. Web presence data is limited in this assessment — no additional signals available.</div></td>
+              <td><span class="sig-badge C">MEDIUM</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      </div></div>
+
+    <!-- ═══════════════ SCREEN 4: BATH BUSTERS — F ═══════════════ -->
+    <div id="screen-bathbusters" class="screen">
+      <div class="report-top">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="back-btn" onclick="showScreen('portfolio')" style="margin-bottom:0">← Back to Portfolio</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-faint);">
+            <span>Alert 1 of 2</span>
+            <button onclick="showScreen('jfuels')" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--ink-mid);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);">Next alert &#8594;</button>
+          </div>
+        </div>
+        <div class="report-company-label">Monitoring Alert · Portfolio Buyer</div>
+        <div class="report-company-name">Bath Busters, Inc.</div>
+      </div>
+      <div class="score-row">
+        <div class="score-main">
+          <div class="score-number F">F &nbsp;<span style="font-size:22px;vertical-align:middle">28/100</span></div>
+          <div class="score-label" style="color:var(--red-text);margin-top:4px">Score dropped 31 points in 30 days</div>
+          <div class="score-desc">4 new liens in 4 months, all from short-term lenders — a pattern that typically means the business is borrowing urgently to cover cash shortfalls. Their New Hampshire registration has also been suspended. 8 active liens total. Recommend freezing terms immediately.</div>
+        </div>
+        <div class="score-meta">
+          <div class="meta-item"><div class="meta-item-label">Terms Extended</div><div class="meta-item-value">Net-45 · $180,000</div></div>
+          <div class="meta-item"><div class="meta-item-label">Structure</div><div class="meta-item-value">C-Corp · Massachusetts</div></div>
+          <div class="meta-item"><div class="meta-item-label">Time in Business</div><div class="meta-item-value">12 yrs, 8 mo</div></div>
+          <div class="meta-item"><div class="meta-item-label">KYB Score</div><div class="meta-item-value">100 / A — Identity Verified</div></div>
+        </div>
+      </div>
+      <div class="rec-box F">
+        <div class="rec-eyebrow">Recommended Action</div>
+        <div class="rec-text">Stop extending credit. Require payment upfront or at delivery. Filing 4 short-term liens in 4 months is a strong warning sign — businesses do this when they are running out of cash and cannot access traditional bank financing. Do not resume credit terms until the liens are cleared and the New Hampshire registration issue is resolved.</div>
+      </div>
+      <div <div class="score-history-card">
+        <div class="history-title">Score History</div>
+        <div class="bar-chart"><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">59</div><div class="bar-fill" style="height:59%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Oct 2024</div></div><div class="bar-col"><div class="bar-val" style="color:var(--amber-text)">55</div><div class="bar-fill" style="height:55%;background:var(--amber-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Dec 2024</div></div><div class="bar-col"><div class="bar-val" style="color:var(--amber-text)">51</div><div class="bar-fill" style="height:51%;background:var(--amber-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Feb 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--amber-text)">45</div><div class="bar-fill" style="height:45%;background:var(--amber-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Apr 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--red-text)">38</div><div class="bar-fill" style="height:38%;background:var(--red-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Jun 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--red-text)">28</div><div class="bar-fill" style="height:28%;background:var(--red-text);opacity:1;border-radius:3px 3px 0 0"></div><div class="bar-date">Aug 2025</div></div></div>
+      </div>
+      <div class="timeline-wrap">
+        <div class="timeline-heading">What Changed</div>
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-dot amber"></div><div class="tl-content"><div class="tl-date">Aug 1, 2025</div><div class="tl-event">New lien filed in MA — Corporation Service Company (short-term lender agent).</div></div></div>
+          <div class="tl-item"><div class="tl-dot amber"></div><div class="tl-content"><div class="tl-date">Jun 2, 2025</div><div class="tl-event">New lien filed in MA — Corporation Service Company (short-term lender agent).</div></div></div>
+          <div class="tl-item"><div class="tl-dot amber"></div><div class="tl-content"><div class="tl-date">May 16, 2025</div><div class="tl-event">New lien filed in MA — ASSN Company.</div></div></div>
+          <div class="tl-item"><div class="tl-dot amber"></div><div class="tl-content"><div class="tl-date">Apr 28, 2025</div><div class="tl-event">New lien filed in MA — Corporation Service Company (short-term lender agent).</div></div></div>
+          <div class="tl-item"><div class="tl-dot red"></div><div class="tl-content"><div class="tl-date">Ongoing</div><div class="tl-event">NH registration suspended — state compliance issue.</div></div></div>
+          <div class="tl-item"><div class="tl-dot green"></div><div class="tl-content"><div class="tl-date">Baseline</div><div class="tl-event">MA C-Corp, active since June 2013. KYB 100/A. No watchlist hits.</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN 5: J FUELS — F ═══════════════ -->
+    <div id="screen-jfuels" class="screen">
+      <div class="report-top">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="back-btn" onclick="showScreen('portfolio')" style="margin-bottom:0">← Back to Portfolio</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-faint);">
+            <button onclick="showScreen('bathbusters')" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--ink-mid);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);">&#8592; Previous alert</button>
+            <span>Alert 2 of 2</span>
+          </div>
+        </div>
+        <div class="report-company-label">Monitoring Alert · Portfolio Buyer</div>
+        <div class="report-company-name">J Fuels, LLC</div>
+      </div>
+      <div class="score-row">
+        <div class="score-main">
+          <div class="score-number F">F &nbsp;<span style="font-size:22px;vertical-align:middle">33/100</span></div>
+          <div class="score-label" style="color:var(--red-text);margin-top:4px">Score dropped 18 points in 30 days</div>
+          <div class="score-desc">6 open lawsuits across PA, MI, and VA. New suit filed September 2025. 2 active liens, including one from a short-term lender.</div>
+        </div>
+        <div class="score-meta">
+          <div class="meta-item"><div class="meta-item-label">Terms Extended</div><div class="meta-item-value">Net-30 · $95,000</div></div>
+          <div class="meta-item"><div class="meta-item-label">Structure</div><div class="meta-item-value">LLC · Pennsylvania</div></div>
+          <div class="meta-item"><div class="meta-item-label">Time in Business</div><div class="meta-item-value">10 yrs, 10 mo</div></div>
+          <div class="meta-item"><div class="meta-item-label">KYB Score</div><div class="meta-item-value">100 / A — Identity Verified</div></div>
+        </div>
+      </div>
+      <div class="rec-box F">
+        <div class="rec-eyebrow">Recommended Action</div>
+        <div class="rec-text">Reduce exposure. Shorten to Net-15 and keep outstanding balance under $30,000 until active cases close.</div>
+      </div>
+      <div <div class="score-history-card">
+        <div class="history-title">Score History</div>
+        <div class="bar-chart"><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">62</div><div class="bar-fill" style="height:62%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Nov 2024</div></div><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">60</div><div class="bar-fill" style="height:60%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Jan 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--amber-text)">58</div><div class="bar-fill" style="height:58%;background:var(--amber-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Mar 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--amber-text)">51</div><div class="bar-fill" style="height:51%;background:var(--amber-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Jun 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--red-text)">43</div><div class="bar-fill" style="height:43%;background:var(--red-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Aug 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--red-text)">33</div><div class="bar-fill" style="height:33%;background:var(--red-text);opacity:1;border-radius:3px 3px 0 0"></div><div class="bar-date">Sep 2025</div></div></div>
+      </div>
+      <div class="timeline-wrap">
+        <div class="timeline-heading">What Changed</div>
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-dot red"></div><div class="tl-content"><div class="tl-date">Sep 11, 2025</div><div class="tl-event">New lawsuit: J Fuels v. Peterson — PA Court of Common Pleas, York County.</div></div></div>
+          <div class="tl-item"><div class="tl-dot amber"></div><div class="tl-content"><div class="tl-date">Aug 22, 2024</div><div class="tl-event">Active lien in PA — Corporation Service Company (short-term lender agent).</div></div></div>
+          <div class="tl-item"><div class="tl-dot amber"></div><div class="tl-content"><div class="tl-date">Aug 29, 2022</div><div class="tl-event">Active lien in PA — Peoplesbank, Codorus Valley Company. Standard bank loan.</div></div></div>
+          <div class="tl-item"><div class="tl-dot amber"></div><div class="tl-content"><div class="tl-date">Jun 26, 2023</div><div class="tl-event">Open lawsuit: Insurance dispute, Frankenmuth Insurance v. Home Owners Insurance — MI, Wayne County.</div></div></div>
+          <div class="tl-item"><div class="tl-dot green"></div><div class="tl-content"><div class="tl-date">Baseline</div><div class="tl-event">PA LLC, active since April 2015. KYB 100/A. No watchlist hits.</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN 6: FIT OREGON — C ═══════════════ -->
+    <div id="screen-fitoregon" class="screen">
+      <div class="report-top">
+        <div class="back-btn" onclick="showScreen('portfolio')">← Back to Portfolio</div>
+        <div class="report-company-label">Buyer Detail · Portfolio</div>
+        <div class="report-company-name">Fit Oregon, LLC</div>
+      </div>
+      <div class="score-row">
+        <div class="score-main">
+          <div class="score-number C">C &nbsp;<span style="font-size:22px;vertical-align:middle">54/100</span></div>
+          <div class="score-label" style="color:var(--amber-text);margin-top:4px">Moderate Risk — Monitor closely</div>
+          <div class="score-desc">New lawsuit filed October 2025. Active lien from a short-term lender since October 2024. Registered address only partially matches — minor flag.</div>
+        </div>
+        <div class="score-meta">
+          <div class="meta-item"><div class="meta-item-label">Terms Extended</div><div class="meta-item-value">Net-30 · $62,000</div></div>
+          <div class="meta-item"><div class="meta-item-label">Structure</div><div class="meta-item-value">LLC · Oregon</div></div>
+          <div class="meta-item"><div class="meta-item-label">Time in Business</div><div class="meta-item-value">12 yrs, 11 mo</div></div>
+          <div class="meta-item"><div class="meta-item-label">KYB Score</div><div class="meta-item-value" style="color:var(--amber-text)">93 / A — Address partial match</div></div>
+        </div>
+      </div>
+      <div class="rec-box C">
+        <div class="rec-eyebrow">Recommended Action</div>
+        <div class="rec-text">Maintain current terms. Request address confirmation. A second lien or lawsuit triggers immediate review.</div>
+      </div>
+      <div <div class="score-history-card">
+        <div class="history-title">Score History</div>
+        <div class="bar-chart"><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">72</div><div class="bar-fill" style="height:72%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Nov 2024</div></div><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">70</div><div class="bar-fill" style="height:70%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Jan 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">67</div><div class="bar-fill" style="height:67%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Apr 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">62</div><div class="bar-fill" style="height:62%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Jun 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--amber-text)">58</div><div class="bar-fill" style="height:58%;background:var(--amber-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Aug 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--amber-text)">54</div><div class="bar-fill" style="height:54%;background:var(--amber-text);opacity:1;border-radius:3px 3px 0 0"></div><div class="bar-date">Oct 2025</div></div></div>
+      </div>
+      <div class="timeline-wrap">
+        <div class="timeline-heading">What Changed</div>
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-dot red"></div><div class="tl-content"><div class="tl-date">Oct 9, 2025</div><div class="tl-event">New lawsuit: Stanwood Group v. Fit Oregon — PA, Montgomery County Court.</div></div></div>
+          <div class="tl-item"><div class="tl-dot amber"></div><div class="tl-content"><div class="tl-date">Oct 16, 2024</div><div class="tl-event">Active lien in OR — Plexe LLC, a short-term lender.</div></div></div>
+          <div class="tl-item"><div class="tl-dot green"></div><div class="tl-content"><div class="tl-date">Baseline</div><div class="tl-event">OR LLC since March 2013, also operates as Fulcrum Fitness. KYB 93/A — address partially matched. Outstanding SBA loan from 2020 (normal for COVID-era borrowers).</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN 7: TRAILERS PLUS — B ═══════════════ -->
+    <div id="screen-trailersplus" class="screen">
+      <div class="report-top">
+        <div class="back-btn" onclick="showScreen('portfolio')">← Back to Portfolio</div>
+        <div class="report-company-label">Buyer Detail · Portfolio</div>
+        <div class="report-company-name">Trailers Plus, Inc.</div>
+      </div>
+      <div class="score-row">
+        <div class="score-main">
+          <div class="score-number B">B &nbsp;<span style="font-size:22px;vertical-align:middle">72/100</span></div>
+          <div class="score-label" style="color:var(--teal-text);margin-top:4px">Low-Moderate Risk — Established business, normal lien profile</div>
+          <div class="score-desc">8 active liens, all from major equipment and inventory lenders (Deere, Caterpillar, Westlake, Wells Fargo). Normal for a dealership financing its inventory. 24 years in business. No lawsuits.</div>
+        </div>
+        <div class="score-meta">
+          <div class="meta-item"><div class="meta-item-label">Terms Extended</div><div class="meta-item-value">Net-60 · $310,000</div></div>
+          <div class="meta-item"><div class="meta-item-label">Structure</div><div class="meta-item-value">C-Corp · Nevada</div></div>
+          <div class="meta-item"><div class="meta-item-label">Time in Business</div><div class="meta-item-value">24 yrs, 3 mo</div></div>
+          <div class="meta-item"><div class="meta-item-label">KYB Score</div><div class="meta-item-value">100 / A — Fully Verified</div></div>
+        </div>
+      </div>
+      <div class="rec-box B">
+        <div class="rec-eyebrow">Recommended Action</div>
+        <div class="rec-text">Maintain Net-60 terms. Lien volume reflects normal inventory financing, not financial distress.</div>
+      </div>
+      <div <div class="score-history-card">
+        <div class="history-title">Score History</div>
+        <div class="bar-chart"><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">68</div><div class="bar-fill" style="height:68%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Oct 2024</div></div><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">69</div><div class="bar-fill" style="height:69%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Dec 2024</div></div><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">70</div><div class="bar-fill" style="height:70%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Feb 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">71</div><div class="bar-fill" style="height:71%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">May 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">72</div><div class="bar-fill" style="height:72%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Jul 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">72</div><div class="bar-fill" style="height:72%;background:var(--teal-text);opacity:1;border-radius:3px 3px 0 0"></div><div class="bar-date">Sep 2025</div></div></div>
+      </div>
+      <div class="timeline-wrap">
+        <div class="timeline-heading">Signal Detail</div>
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-dot amber"></div><div class="tl-content"><div class="tl-date">Oct 24, 2025</div><div class="tl-event">Active lien in NV — Westlake Flooring Company. Inventory financing, standard for dealers.</div></div></div>
+          <div class="tl-item"><div class="tl-dot green"></div><div class="tl-content"><div class="tl-date">Jan &amp; Dec 2024</div><div class="tl-event">Active liens in NV — Deere &amp; Company. Equipment purchase financing.</div></div></div>
+          <div class="tl-item"><div class="tl-dot green"></div><div class="tl-content"><div class="tl-date">Older liens</div><div class="tl-event">Older liens — Caterpillar Financial, GE Commercial, Wells Fargo. All standard equipment lenders, no short-term borrowing.</div></div></div>
+          <div class="tl-item"><div class="tl-dot green"></div><div class="tl-content"><div class="tl-date">Baseline</div><div class="tl-event">NV C-Corp, active since November 2001. KYB 100/A. No watchlist hits.</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN 8: BLOUNT CYLINDER — B ═══════════════ -->
+    <div id="screen-blount" class="screen">
+      <div class="report-top">
+        <div class="back-btn" onclick="showScreen('portfolio')">← Back to Portfolio</div>
+        <div class="report-company-label">Buyer Detail · Portfolio</div>
+        <div class="report-company-name">Blount Cylinder Repair LLC</div>
+      </div>
+      <div class="score-row">
+        <div class="score-main">
+          <div class="score-number B">B &nbsp;<span style="font-size:22px;vertical-align:middle">77/100</span></div>
+          <div class="score-label" style="color:var(--teal-text);margin-top:4px">Low-Moderate Risk — Stable, minor identity flag</div>
+          <div class="score-desc">No liens. No lawsuits. Active AL registration. Minor name discrepancy in state records — paperwork issue, not financial.</div>
+        </div>
+        <div class="score-meta">
+          <div class="meta-item"><div class="meta-item-label">Terms Extended</div><div class="meta-item-value">Net-30 · $48,000</div></div>
+          <div class="meta-item"><div class="meta-item-label">Structure</div><div class="meta-item-value">LLC · Alabama</div></div>
+          <div class="meta-item"><div class="meta-item-label">Time in Business</div><div class="meta-item-value">7 yrs, 1 mo</div></div>
+          <div class="meta-item"><div class="meta-item-label">KYB Score</div><div class="meta-item-value" style="color:var(--amber-text)">86 / B — Name match partial</div></div>
+        </div>
+      </div>
+      <div class="rec-box B">
+        <div class="rec-eyebrow">Recommended Action</div>
+        <div class="rec-text">Maintain current terms. Confirm legal business name against AL state records.</div>
+      </div>
+      <div <div class="score-history-card">
+        <div class="history-title">Score History</div>
+        <div class="bar-chart"><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">77</div><div class="bar-fill" style="height:77%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Oct 2024</div></div><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">77</div><div class="bar-fill" style="height:77%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Dec 2024</div></div><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">77</div><div class="bar-fill" style="height:77%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Feb 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">77</div><div class="bar-fill" style="height:77%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">May 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">77</div><div class="bar-fill" style="height:77%;background:var(--teal-text);opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Jul 2025</div></div><div class="bar-col"><div class="bar-val" style="color:var(--teal-text)">77</div><div class="bar-fill" style="height:77%;background:var(--teal-text);opacity:1;border-radius:3px 3px 0 0"></div><div class="bar-date">Sep 2025</div></div></div>
+      </div>
+      <div class="timeline-wrap">
+        <div class="timeline-heading">Signal Detail</div>
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-dot green"></div><div class="tl-content"><div class="tl-date">Current</div><div class="tl-event">No liens. No lawsuits. Clear on all government watchlists.</div></div></div>
+          <div class="tl-item"><div class="tl-dot amber"></div><div class="tl-content"><div class="tl-date">Identity flag</div><div class="tl-event">Business name slightly differs from AL state records — likely a filing variation. Tax ID, address, and owner confirmed.</div></div></div>
+          <div class="tl-item"><div class="tl-dot green"></div><div class="tl-content"><div class="tl-date">Baseline</div><div class="tl-event">AL LLC, active for 7+ years. No liens or legal issues on record.</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN 9: BEERBEV — A ═══════════════ -->
+    <div id="screen-beerbev" class="screen">
+      <div class="report-top">
+        <div class="back-btn" onclick="showScreen('portfolio')">← Back to Portfolio</div>
+        <div class="report-company-label">Buyer Detail · Portfolio</div>
+        <div class="report-company-name">BeerBev LLC</div>
+      </div>
+      <div class="score-row">
+        <div class="score-main">
+          <div class="score-number A">A &nbsp;<span style="font-size:22px;vertical-align:middle">96/100</span></div>
+          <div class="score-label" style="color:var(--green-text);margin-top:4px">Very Low Risk — Strong candidate for extended terms</div>
+          <div class="score-desc">No liens. No lawsuits. KYB 100/A. Just expanded into California (November 2025). Clear on all government watchlists.</div>
+        </div>
+        <div class="score-meta">
+          <div class="meta-item"><div class="meta-item-label">Terms Extended</div><div class="meta-item-value">Net-60 · $225,000</div></div>
+          <div class="meta-item"><div class="meta-item-label">Structure</div><div class="meta-item-value">LLC · Florida</div></div>
+          <div class="meta-item"><div class="meta-item-label">Time in Business</div><div class="meta-item-value">14 yrs, 2 mo</div></div>
+          <div class="meta-item"><div class="meta-item-label">KYB Score</div><div class="meta-item-value">100 / A — Fully Verified</div></div>
+        </div>
+      </div>
+      <div class="rec-box A">
+        <div class="rec-eyebrow">Recommended Action</div>
+        <div class="rec-text">Consider extending to Net-90. Strong payment history, no financial stress signals, actively expanding.</div>
+      </div>
+      <div <div class="score-history-card">
+        <div class="history-title">Score History</div>
+        <div class="bar-chart"><div class="bar-col"><div class="bar-val" style="color:#15803d">93</div><div class="bar-fill" style="height:93%;background:#15803d;opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Oct 2024</div></div><div class="bar-col"><div class="bar-val" style="color:#15803d">94</div><div class="bar-fill" style="height:94%;background:#15803d;opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Dec 2024</div></div><div class="bar-col"><div class="bar-val" style="color:#15803d">95</div><div class="bar-fill" style="height:95%;background:#15803d;opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Feb 2025</div></div><div class="bar-col"><div class="bar-val" style="color:#15803d">95</div><div class="bar-fill" style="height:95%;background:#15803d;opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">May 2025</div></div><div class="bar-col"><div class="bar-val" style="color:#15803d">96</div><div class="bar-fill" style="height:96%;background:#15803d;opacity:0.35;border-radius:3px 3px 0 0"></div><div class="bar-date">Jul 2025</div></div><div class="bar-col"><div class="bar-val" style="color:#15803d">96</div><div class="bar-fill" style="height:96%;background:#15803d;opacity:1;border-radius:3px 3px 0 0"></div><div class="bar-date">Sep 2025</div></div></div>
+      </div>
+      <div class="timeline-wrap">
+        <div class="timeline-heading">Signal Detail</div>
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-dot green"></div><div class="tl-content"><div class="tl-date">Nov 20, 2025</div><div class="tl-event">New CA registration — signals geographic expansion.</div></div></div>
+          <div class="tl-item"><div class="tl-dot green"></div><div class="tl-content"><div class="tl-date">Current</div><div class="tl-event">No active liens. No open lawsuits. One resolved case from 2018 (BeerBev was the plaintiff).</div></div></div>
+          <div class="tl-item"><div class="tl-dot green"></div><div class="tl-content"><div class="tl-date">Baseline</div><div class="tl-event">FL LLC, active since December 2011. KYB 100/A. Manager: Bettina Gunkel.</div></div></div>
+        </div>
+      
+</main>
+
+  <div id="shared-action-bar" style="display:none;position:fixed;bottom:0;left:200px;right:0;background:var(--white);border-top:1px solid var(--border);padding:12px 36px;align-items:center;gap:10px;z-index:50;">
+    <span id="action-attribution" style="flex:1;font-size:11px;color:var(--ink-faint);">Powered by Baselayer</span>
+    <button class="btn-ghost" id="action-secondary"></button>
+    <button class="btn-ghost" id="action-tertiary" style="display:none"></button>
+    <button class="btn-cobalt" id="action-primary"></button>
+  </div>
+    </div>
+
+<script>
+  // Set default report data (New Age Environmental Services)
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('report-name').textContent = 'New Age Environmental Services, Inc.';
+    document.getElementById('report-date').textContent = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}).toUpperCase();
+  });
+
+
+  const screenActions = {
+    'bathbusters': {
+      secondary: { label: 'Back to portfolio', fn: "showScreen('portfolio')" },
+      tertiary:  { label: 'Mark as reviewed', fn: "markReviewed('bathbusters')" },
+      primary:   { label: 'Freeze terms', style: 'background:#b91c1c;border-color:#b91c1c', fn: "applyAction('bathbusters','freeze')" }
+    },
+    'jfuels': {
+      secondary: { label: 'Back to portfolio', fn: "showScreen('portfolio')" },
+      tertiary:  { label: 'Mark as reviewed', fn: "markReviewed('jfuels')" },
+      primary:   { label: 'Reduce terms to Net-15', style: 'background:#b91c1c;border-color:#b91c1c', fn: "applyAction('jfuels','reduce')" }
+    },
+    'fitoregon': {
+      secondary: { label: 'Back to portfolio', fn: "showScreen('portfolio')" },
+      tertiary:  { label: 'Mark as reviewed', fn: "markReviewed('fitoregon')" },
+      primary:   { label: 'Flag for follow-up', style: 'background:#b45309;border-color:#b45309', fn: "applyAction('fitoregon','flag')" }
+    },
+    'trailersplus': {
+      secondary: { label: 'Back to portfolio', fn: "showScreen('portfolio')" },
+      primary:   { label: 'Mark as reviewed', fn: "showScreen('portfolio')" }
+    },
+    'blount': {
+      secondary: { label: 'Back to portfolio', fn: "showScreen('portfolio')" },
+      primary:   { label: 'Mark as reviewed', fn: "showScreen('portfolio')" }
+    },
+    'beerbev': {
+      secondary: { label: 'Back to portfolio', fn: "showScreen('portfolio')" },
+      primary:   { label: 'Extend to Net-90', style: 'background:#15803d;border-color:#15803d', fn: "applyAction('beerbev','extend')" }
+    },
+    'report': {
+      secondary: { label: '← Run another check', fn: "showScreen('new-check')" },
+      tertiary:  { label: 'Do not extend credit', style: 'color:#b91c1c;border-color:#b91c1c' },
+      primary:   { label: '+ Add to Portfolio', style: 'background:#1e40af;border-color:#1e40af', fn: 'addToPortfolio()' }
+    }
+  };
+
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (name === 'portfolio') document.querySelectorAll('.nav-item')[0].classList.add('active');
+    if (name === 'new-check') document.querySelectorAll('.nav-item')[1].classList.add('active');
+    document.querySelector('.main').scrollTop = 0;
+
+    // Update shared action bar
+    const bar = document.getElementById('shared-action-bar');
+    const cfg = screenActions[name];
+    if (cfg) {
+      const sec = document.getElementById('action-secondary');
+      const pri = document.getElementById('action-primary');
+      sec.textContent = cfg.secondary.label;
+      sec.onclick = function() { eval(cfg.secondary.fn); };
+      // tertiary button
+      const ter = document.getElementById('action-tertiary');
+      if (cfg.tertiary) {
+        ter.textContent = cfg.tertiary.label;
+        ter.style.display = '';
+        ter.style.color = '';
+        ter.style.borderColor = '';
+        if (cfg.tertiary.style) {
+          const tc = cfg.tertiary.style.match(/color:([^;]+)/);
+          const tb = cfg.tertiary.style.match(/border-color:([^;]+)/);
+          if (tc) ter.style.color = tc[1].trim();
+          if (tb) ter.style.borderColor = tb[1].trim();
+        }
+        ter.onclick = cfg.tertiary.fn ? function() { eval(cfg.tertiary.fn); } : null;
+      } else {
+        ter.style.display = 'none';
+      }
+      pri.textContent = cfg.primary.label;
+      pri.style.background = '';
+      pri.style.borderColor = '';
+      if (cfg.primary.style) {
+        const m1 = cfg.primary.style.match(/background:([^;]+)/);
+        const m2 = cfg.primary.style.match(/border-color:([^;]+)/);
+        if (m1) pri.style.background = m1[1].trim();
+        if (m2) pri.style.borderColor = m2[1].trim();
+      }
+      pri.onclick = cfg.primary.fn ? function() { eval(cfg.primary.fn); } : null;
+      bar.style.display = 'flex';
+      bar.style.alignItems = 'center';
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+
+
+
+  // Buyer state tracking
+  const buyerState = {};
+
+  // markReviewed: only affects the alert banner, list rows are untouched
+  const alertBuyers = ['bathbusters', 'jfuels']; // buyers shown in the alert strip
+
+  function markReviewed(buyerKey) {
+    buyerState[buyerKey] = buyerState[buyerKey] === 'reviewed' ? null : 'reviewed';
+    const isReviewed = buyerState[buyerKey] === 'reviewed';
+
+    // Check if all alerted buyers are now reviewed — if so, hide the strip
+    const allReviewed = alertBuyers.every(k => buyerState[k] === 'reviewed');
+    const strip = document.querySelector('.alert-strip');
+    if (strip) {
+      if (allReviewed) {
+        strip.style.transition = 'opacity 0.4s, max-height 0.4s';
+        strip.style.opacity = '0';
+        strip.style.maxHeight = '0';
+        strip.style.overflow = 'hidden';
+        strip.style.marginTop = '0';
+        strip.style.padding = '0';
+      } else {
+        strip.style.opacity = '';
+        strip.style.maxHeight = '';
+        strip.style.overflow = '';
+        strip.style.marginTop = '';
+        strip.style.padding = '';
+      }
+    }
+
+    // Flip tertiary button label
+    if (screenActions[buyerKey] && screenActions[buyerKey].tertiary) {
+      screenActions[buyerKey].tertiary.label = isReviewed ? 'Undo reviewed' : 'Mark as reviewed';
+      const ter = document.getElementById('action-tertiary');
+      if (ter && ter.style.display !== 'none') ter.textContent = screenActions[buyerKey].tertiary.label;
+    }
+  }
+
+  // Toggle map: action ↔ undo
+  const actionToggle = {
+    freeze:  { active: { label: 'Unfreeze terms',      style: 'background:#475569;border-color:#475569' }, inactive: { label: 'Freeze terms',          style: 'background:#b91c1c;border-color:#b91c1c' } },
+    reduce:  { active: { label: 'Restore terms',       style: 'background:#475569;border-color:#475569' }, inactive: { label: 'Reduce terms to Net-15', style: 'background:#b91c1c;border-color:#b91c1c' } },
+    extend:  { active: { label: 'Revert terms',        style: 'background:#475569;border-color:#475569' }, inactive: { label: 'Extend to Net-90',       style: 'background:#15803d;border-color:#15803d' } },
+    flag:    { active: { label: 'Remove flag',         style: 'background:#475569;border-color:#475569' }, inactive: { label: 'Flag for follow-up',     style: 'background:#b45309;border-color:#b45309' } },
+  };
+
+  // Action row badges shown in the Flags column
+  const actionBadge = {
+    freeze: '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;">🔒 Terms frozen</span>',
+    reduce: '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;background:#ffedd5;color:#b45309;border:1px solid #fed7aa;">↓ Terms reduced</span>',
+    extend: '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;">↑ Terms extended</span>',
+    flag:   '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;background:#fef9c3;color:#854d0e;border:1px solid #fde047;">⚑ Follow-up flagged</span>',
+  };
+
+  function applyAction(buyerKey, type) {
+    const isActive = buyerState[buyerKey + '_' + type];
+    buyerState[buyerKey + '_' + type] = !isActive;
+    const toggled = !isActive;
+
+    const row = document.querySelector('[data-buyer="' + buyerKey + '"]');
+    if (row) {
+      const termsTd = row.querySelectorAll('td')[1];
+      const termSpan = termsTd ? termsTd.querySelector('.terms-mono') : null;
+      const flagTd = row.querySelector('td:last-child');
+      if (toggled) {
+        // Stronger row treatment: solid left border + clear background tint
+        if (type === 'freeze' || type === 'reduce') {
+          row.style.borderLeft = '4px solid #f87171';
+          row.style.background = 'linear-gradient(to right, #fff1f1 0%, #fff8f8 60%)';
+          if (termSpan) { termSpan.style.textDecoration = 'line-through'; termSpan.style.color = '#94a3b8'; }
+        } else if (type === 'extend') {
+          row.style.borderLeft = '4px solid #4ade80';
+          row.style.background = 'linear-gradient(to right, #f0fff4 0%, #f9fefb 60%)';
+        } else if (type === 'flag') {
+          row.style.borderLeft = '4px solid #fbbf24';
+          row.style.background = 'linear-gradient(to right, #fffbeb 0%, #fffdf5 60%)';
+        }
+        // Stash original flags and replace with action badge
+        if (flagTd) {
+          row.dataset.flagsHtml = flagTd.innerHTML;
+          flagTd.innerHTML = actionBadge[type] || '';
+        }
+      } else {
+        // Undo
+        row.style.borderLeft = '';
+        row.style.background = '';
+        if (termSpan) { termSpan.style.textDecoration = ''; termSpan.style.color = ''; }
+        if (flagTd && row.dataset.flagsHtml !== undefined) flagTd.innerHTML = row.dataset.flagsHtml;
+      }
+    }
+
+    // Update the primary button config + bar
+    const t = actionToggle[type];
+    const next = toggled ? t.active : t.inactive;
+    if (screenActions[buyerKey]) {
+      screenActions[buyerKey].primary = { label: next.label, style: next.style, fn: "applyAction('" + buyerKey + "','" + type + "')" };
+    }
+    const pri = document.getElementById('action-primary');
+    if (pri) {
+      pri.textContent = next.label;
+      const m1 = next.style.match(/background:([^;]+)/);
+      const m2 = next.style.match(/border-color:([^;]+)/);
+      if (m1) pri.style.background = m1[1].trim();
+      if (m2) pri.style.borderColor = m2[1].trim();
+      pri.onclick = function() { eval(screenActions[buyerKey].primary.fn); };
+    }
+
+    setTimeout(() => showScreen('portfolio'), 600);
+  }
+
+    function addToPortfolio() {
+    const name = document.getElementById('input-name').value.trim() || 'New Age Environmental Services, Inc.';
+    const terms = document.getElementById('input-terms').value.trim() || 'Net-60';
+    // Parse terms for display
+    const termMatch = terms.match(/Net-\d+/i);
+    const termDisplay = termMatch ? termMatch[0] : terms.split('·')[0].trim();
+
+    const tbody = document.querySelector('#screen-portfolio .buyer-table tbody');
+
+    // Flip report screen to portfolio-mode actions after adding
+    screenActions['report'] = {
+      secondary: { label: 'Back to portfolio', fn: "showScreen('portfolio')" },
+      primary:   { label: 'Freeze terms', style: 'background:#b91c1c;border-color:#b91c1c', fn: "showScreen('portfolio')" }
+    };
+
+    // Check if already added
+    const existing = Array.from(tbody.querySelectorAll('.buyer-name')).find(el => el.textContent.trim() === name);
+    if (existing) {
+      showScreen('portfolio');
+      return;
+    }
+
+    const tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.innerHTML = `
+      <td>
+        <div class="buyer-name">${name}</div>
+        <div class="buyer-detail">New Assessment · TX · Est. 2007</div>
+      </td>
+      <td><span class="terms-mono">${termDisplay}</span></td>
+      <td><span class="terms-mono">$150,000</span></td>
+      <td><span class="rating-pill F">F</span></td>
+      <td><span class="score-mono F">28</span></td>
+      <td><span class="delta-neg">▼ New</span></td>
+      <td><span class="flag-chip lien">6 Liens</span><span class="flag-chip litigation">2 Suits</span></td>
+    `;
+    tr.onclick = function() { showScreen('report'); };
+    // Insert in score order (worst to best — ascending score value)
+    const newScore = 28;
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    let inserted = false;
+    for (const row of rows) {
+      const scoreEl = row.querySelector('.score-mono');
+      const rowScore = scoreEl ? parseInt(scoreEl.textContent) : 999;
+      if (newScore < rowScore) {
+        tbody.insertBefore(tr, row);
+        inserted = true;
+        break;
+      }
+    }
+    if (!inserted) tbody.appendChild(tr);
+
+    // Update stat card: total exposure
+    const statCards = document.querySelectorAll('.stat-value');
+    // Also update F count
+    const fCard = Array.from(statCards).find(el => el.closest('.stat-card') && el.closest('.stat-card').querySelector('.stat-label') && el.closest('.stat-card').querySelector('.stat-label').textContent.includes('High Risk'));
+    if (fCard) {
+      const cur = parseInt(fCard.textContent) || 2;
+      fCard.textContent = cur + 1;
+    }
+
+    // Change button to "Added ✓"
+    const pri = document.getElementById('action-primary');
+    pri.textContent = 'Added to Portfolio ✓';
+    pri.style.background = '#15803d';
+    pri.style.borderColor = '#15803d';
+    pri.onclick = function() { showScreen('portfolio'); };
+
+    setTimeout(function() { showScreen('portfolio'); }, 800);
+  }
+  function runCheck() {
+    const name = document.getElementById('input-name').value.trim() || 'Riverstone Materials Corp';
+    document.getElementById('form-card').style.display = 'none';
+    const wrap = document.getElementById('loading-wrap');
+    wrap.classList.add('visible');
+    document.getElementById('loading-name').textContent = name;
+
+    const steps = ['cs1','cs2','cs3','cs4','cs5','cs6'];
+    let i = 0;
+
+    function tick() {
+      if (i > 0) {
+        const prev = document.getElementById(steps[i-1]);
+        prev.classList.remove('active');
+        prev.classList.add('done');
+        prev.querySelector('.step-mark').textContent = '✓';
+      }
+      if (i < steps.length) {
+        const cur = document.getElementById(steps[i]);
+        cur.classList.add('active');
+        cur.querySelector('.step-mark').textContent = '→';
+        i++;
+        setTimeout(tick, 500);
+      } else {
+        setTimeout(() => {
+          document.getElementById('report-name').textContent = name;
+          document.getElementById('report-date').textContent = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}).toUpperCase();
+          wrap.classList.remove('visible');
+          document.getElementById('form-card').style.display = 'block';
+          // reset form steps
+          steps.forEach(id => {
+            const el = document.getElementById(id);
+            el.className = 'check-step';
+            el.querySelector('.step-mark').textContent = '○';
+          });
+          showScreen('report');
+        }, 350);
+      }
+    }
+    tick();
+  }
+</script>
+
+  </body>
+</html>
