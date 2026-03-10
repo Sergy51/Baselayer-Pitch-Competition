@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearTerms — Powered by Baselayer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue:         #384CE3;
+    --blue-dark:    #2A3ABF;
+    --blue-light:   #EEF0FD;
+    --blue-mid:     #C5CBF5;
+    --bg:           #FFFFFF;
+    --bg-alt:       #F7F8FC;
+    --text:         #1A1A2E;
+    --text-sec:     #5A5A7A;
+    --text-muted:   #8E8EA0;
+    --border:       #E2E4EF;
+    --teal:         #1BA8A0;
+    --teal-soft:    #F0FDFC;
+    --teal-border:  #5DDBD5;
+    --font:         'Inter', sans-serif;
+    --mono:         'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    font-family: var(--font);
+    color: var(--text);
+    background: #0F1020;
+  }
+
+  .slide {
+    width: 100vw; height: 100vh;
+    background: var(--bg);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    overflow: hidden;
+  }
+
+  .top-bar {
+    padding: 0.5cm 1.1cm 0;
+    flex-shrink: 0;
+  }
+
+  .slide-label {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--blue);
+    margin-bottom: 5px;
+  }
+
+  .slide-title {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    color: var(--text);
+  }
+
+  .table-wrap {
+    padding: 0.3cm 1.1cm 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .col-headers {
+    display: grid;
+    grid-template-columns: 1fr 52px 1fr;
+    flex-shrink: 0;
+    margin-bottom: 10px;
+  }
+
+  .ch {
+    padding: 6px 14px 8px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .ch.ct-head { border-bottom-color: var(--teal); }
+
+  .ch-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+  }
+
+  .data-rows {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 9px;
+  }
+
+  .data-row {
+    display: grid;
+    grid-template-columns: 1fr 52px 1fr;
+    align-items: stretch;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* Source cell — light, only the chip is dark */
+  .src-cell {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 16px 13px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px;
+  }
+
+  .src-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #1A1A2E;
+    border: 1px solid #353B62;
+    border-radius: 5px;
+    padding: 3px 9px;
+    width: fit-content;
+  }
+
+  .src-field-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .src-field-dot.direct  { background: #6B7ABF; }
+  .src-field-dot.derived { background: var(--teal); }
+
+  .src-field-name {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #8B97D8;
+    letter-spacing: 0.3px;
+  }
+
+  .src-desc {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-sec);
+    line-height: 1.4;
+  }
+
+  .arrow-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .arrow-cell.direct  { color: var(--blue-mid); }
+  .arrow-cell.derived { color: var(--teal-border); }
+
+  .sig-cell {
+    border-radius: 10px;
+    padding: 11px 16px 13px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    position: relative;
+  }
+
+  .sig-cell.direct  { background: var(--blue-light); border: 1px solid var(--blue-mid); }
+  .sig-cell.derived { background: var(--teal-soft);  border: 1px solid var(--teal-border); }
+
+  .type-badge {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+
+  .sig-cell.direct  .type-badge { background: var(--blue-mid); color: var(--blue-dark); }
+  .sig-cell.derived .type-badge { background: var(--teal-border); color: #0A7A74; }
+
+  .sig-name {
+    font-size: 18px;
+    font-weight: 700;
+    padding-right: 78px;
+  }
+
+  .sig-cell.direct  .sig-name { color: var(--blue-dark); }
+  .sig-cell.derived .sig-name { color: var(--teal); }
+
+  .sig-desc {
+    font-size: 14px;
+    color: var(--text-sec);
+    line-height: 1.4;
+  }
+
+  .sig-desc em {
+    font-style: normal;
+    font-weight: 600;
+    color: #0A9490;
+  }
+
+  .footer {
+    padding: 0.2cm 1.1cm 0.28cm;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .legend-swatch {
+    width: 11px; height: 11px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .sw-direct  { background: var(--blue-light); border: 1px solid var(--blue-mid); }
+  .sw-derived { background: var(--teal-soft);  border: 1px solid var(--teal-border); }
+
+  .footer-right {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+<div class="slide">
+
+  <div class="top-bar">
+    <div class="slide-label">The data layer</div>
+    <div class="slide-title">Every signal in that demo runs on data Baselayer already has.</div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="col-headers">
+      <div class="ch"><div class="ch-label">Baselayer data source</div></div>
+      <div></div>
+      <div class="ch ct-head"><div class="ch-label">ClearTerms signal</div></div>
+    </div>
+
+    <div class="data-rows">
+
+      <div class="data-row">
+        <div class="src-cell">
+          <div class="src-field"><div class="src-field-dot direct"></div><div class="src-field-name">sos_registrations</div></div>
+          <div class="src-desc">Whether the business is legally registered and active in its state</div>
+        </div>
+        <div class="arrow-cell direct">→</div>
+        <div class="sig-cell direct">
+          <div class="type-badge">Direct</div>
+          <div class="sig-name">Registration status</div>
+          <div class="sig-desc">Passed through directly — active, suspended, or dissolved</div>
+        </div>
+      </div>
+
+      <div class="data-row">
+        <div class="src-cell">
+          <div class="src-field"><div class="src-field-dot direct"></div><div class="src-field-name">kyb_verification</div></div>
+          <div class="src-desc">Confirms the business is real — name, EIN, owners, and address</div>
+        </div>
+        <div class="arrow-cell direct">→</div>
+        <div class="sig-cell direct">
+          <div class="type-badge">Direct</div>
+          <div class="sig-name">Identity confidence</div>
+          <div class="sig-desc">Passed through directly — flags partial name or address matches</div>
+        </div>
+      </div>
+
+      <div class="data-row">
+        <div class="src-cell">
+          <div class="src-field"><div class="src-field-dot direct"></div><div class="src-field-name">watchlist_screen</div></div>
+          <div class="src-desc">Checks the business and its owners against OFAC, FBI, and government sanctions lists</div>
+        </div>
+        <div class="arrow-cell direct">→</div>
+        <div class="sig-cell direct">
+          <div class="type-badge">Direct</div>
+          <div class="sig-name">Sanctions clear</div>
+          <div class="sig-desc">Passed through directly — clear or flagged at entity and owner level</div>
+        </div>
+      </div>
+
+      <div class="data-row">
+        <div class="src-cell">
+          <div class="src-field"><div class="src-field-dot derived"></div><div class="src-field-name">ucc_lien_filings</div></div>
+          <div class="src-desc">Every lien filed against the business — who filed it, when, and what collateral</div>
+        </div>
+        <div class="arrow-cell derived">→</div>
+        <div class="sig-cell derived">
+          <div class="type-badge">Calculated</div>
+          <div class="sig-name">Lien velocity score</div>
+          <div class="sig-desc">Calculated from lien count, recency, and lender type — <em>short-term lenders are the red flag</em></div>
+        </div>
+      </div>
+
+      <div class="data-row">
+        <div class="src-cell">
+          <div class="src-field"><div class="src-field-dot derived"></div><div class="src-field-name">litigation_records</div></div>
+          <div class="src-desc">All open lawsuits, judgments, and bankruptcies across every state</div>
+        </div>
+        <div class="arrow-cell derived">→</div>
+        <div class="sig-cell derived">
+          <div class="type-badge">Calculated</div>
+          <div class="sig-name">Litigation risk score</div>
+          <div class="sig-desc">Calculated from case recency, cross-state concentration, and plaintiff type</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">
+      <div class="legend-item"><div class="legend-swatch sw-direct"></div>Pulled directly from Baselayer</div>
+      <div class="legend-item"><div class="legend-swatch sw-derived"></div>Calculated by ClearTerms using Baselayer as input</div>
+    </div>
+    <div class="footer-right">03 / 05</div>
+  </div>
+
+</div>
+</body>
+</html>
